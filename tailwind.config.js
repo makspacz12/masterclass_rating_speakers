@@ -10,6 +10,11 @@ export default {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         display: ['"Sora"', 'Inter', 'sans-serif'],
         serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+        // Kroje per-prelegent (różna typografia dla każdego)
+        grotesk: ['"Space Grotesk"', 'sans-serif'],
+        dmserif: ['"DM Serif Display"', 'Georgia', 'serif'],
+        playfair: ['"Playfair Display"', 'Georgia', 'serif'],
+        spacemono: ['"Space Mono"', 'monospace'],
       },
       colors: {
         border: 'hsl(220 20% 16%)',

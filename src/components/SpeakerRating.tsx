@@ -104,7 +104,7 @@ export default function SpeakerRating({
               { value: 'nie', label: 'Nie' },
             ]}
             value={answers.inviteAgain}
-            onChange={(v) => onChange('inviteAgain', v as 'tak' | 'nie')}
+            onChange={(v) => onChange('inviteAgain', v)}
           />
         </QuestionCard>
 
@@ -115,7 +115,7 @@ export default function SpeakerRating({
           <ChipSelect
             options={AUDIENCES}
             value={answers.audience}
-            onChange={(v) => onChange('audience', v as Audience)}
+            onChange={(v) => onChange('audience', v as Audience | null)}
           />
         </QuestionCard>
 

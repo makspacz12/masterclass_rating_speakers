@@ -27,6 +27,9 @@ const SMALL = 0.4
  * Scena przejścia między prelegentami. Animacja dobierana PER PARA indeksów
  * (twarda zasada: zmiana jednego przejścia nie rusza pozostałych):
  *  • para {1,2} (prelegent 2↔3) → poziomy „carousel push" (slajdy jadą w bok),
+ *  • para {2,3} (prelegent 3↔4) → „zoom dissolve" (FROM rośnie i znika, TO
+ *    wyłania się z głębi z rozmyciem),
+ *  • para {3,4} (prelegent 4↔5) → pionowy slide,
  *  • pozostałe pary → domyślna „talia kart z głębią" (FROM kurczy się w tył,
  *    zamienia z małym TO, TO wyrasta do pełni).
  * Po zakończeniu animacji karty TO wołane jest onComplete().
@@ -44,6 +47,8 @@ export function SpeakerSwapStage({
   const hi = Math.max(fromIndex, toIndex)
   // Przejście 2↔3 (indeksy 1 i 2) — poziomy „carousel push".
   const isCarousel = lo === 1 && hi === 2
+  // Przejście 3↔4 (indeksy 2 i 3) — „zoom dissolve".
+  const isZoom = lo === 2 && hi === 3
   // Przejście 4↔5 (indeksy 3 i 4) — pionowy slide.
   const isVertical = lo === 3 && hi === 4
 
@@ -98,6 +103,31 @@ export function SpeakerSwapStage({
                 initial={{ x: `${dir * 110}%` }}
                 animate={{ x: '0%' }}
                 transition={{ duration: 0.6, ease: [0.5, 0, 0.2, 1] }}
+                onAnimationComplete={onComplete}
+              >
+                <SpeakerCard speaker={to} />
+              </motion.div>
+            </>
+          ) : isZoom ? (
+            <>
+              {/* FROM — rośnie ku widzowi i znika (rozmycie) */}
+              <motion.div
+                className="absolute left-5 right-5 top-5"
+                style={{ ...speakerThemeVars(from.id), transformOrigin: 'center', zIndex: 2 }}
+                initial={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                animate={{ scale: 1.28, opacity: 0, filter: 'blur(8px)' }}
+                transition={{ duration: 0.5, ease: [0.4, 0, 0.6, 1] }}
+              >
+                <SpeakerCard speaker={from} />
+              </motion.div>
+
+              {/* TO — wyłania się z głębi (mała + rozmyta → pełna + ostra) */}
+              <motion.div
+                className="absolute left-5 right-5 top-5"
+                style={{ ...speakerThemeVars(to.id), transformOrigin: 'center', zIndex: 1 }}
+                initial={{ scale: 0.82, opacity: 0, filter: 'blur(8px)' }}
+                animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                transition={{ duration: 0.62, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
                 onAnimationComplete={onComplete}
               >
                 <SpeakerCard speaker={to} />

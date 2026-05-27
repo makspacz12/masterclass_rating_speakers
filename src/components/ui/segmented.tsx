@@ -5,7 +5,8 @@ import { cn } from '@/lib/utils'
 interface SegmentedProps<T extends string> {
   options: { value: T; label: string }[]
   value: T | null
-  onChange: (value: T) => void
+  /** Przekazuje wybraną wartość lub `null`, gdy użytkownik odkliknie aktywny segment. */
+  onChange: (value: T | null) => void
 }
 
 /**
@@ -24,7 +25,7 @@ export function Segmented<T extends string>({
           <button
             key={opt.value}
             type="button"
-            onClick={() => onChange(opt.value)}
+            onClick={() => onChange(active ? null : opt.value)}
             className={cn(
               'h-12 rounded-xl border text-[15px] font-semibold transition-all duration-200 ease-out',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--acc)_40%,transparent)]',

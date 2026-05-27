@@ -7,7 +7,8 @@ import { cn } from '@/lib/utils'
 
 interface ScaleRatingProps {
   value: number | null
-  onChange: (value: number) => void
+  /** Przekazuje wybraną wartość lub `null`, gdy użytkownik odkliknie wybór. */
+  onChange: (value: number | null) => void
   lowLabel?: string
   highLabel?: string
   max?: number
@@ -69,7 +70,7 @@ export function ScaleRating({
               type="button"
               onMouseEnter={() => setHover(n)}
               onFocus={() => setHover(n)}
-              onClick={() => onChange(n)}
+              onClick={() => onChange(n === value ? null : n)}
               {...motionProps}
               className={cn(
                 'flex h-11 flex-1 items-center justify-center rounded-xl border text-[15px] font-semibold tabular-nums',

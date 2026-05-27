@@ -14,6 +14,9 @@ const THEMES: Record<string, Record<string, string>> = {
     '--acc-soft2': '#FBEFF5',
     '--acc-title': '#6E2147',
     '--acc-label': '#9A5B7E',
+    '--f-name': '"Playfair Display", Georgia, serif',
+    '--f-ui': '"Space Grotesk", sans-serif',
+    '--f-body': 'Inter, sans-serif',
   },
   // Górski — stalowy błękit / platyna (z landingu, głęboki, nie cyjan)
   'krzysztof-gorski': {
@@ -23,15 +26,18 @@ const THEMES: Record<string, Record<string, string>> = {
     '--acc-soft2': '#EFF3F7',
     '--acc-title': '#3E5972',
     '--acc-label': '#5E7585',
+    '--f-name': '"Space Mono", monospace',
+    '--f-ui': '"Space Mono", monospace',
+    '--f-body': 'Inter, sans-serif',
   },
-  // Bralczyk — głęboka leśna zieleń (klasyczny, „literacki" charakter)
+  // Bralczyk — złoto / szampan (to samo, które wcześniej miała Czubkowska)
   'jerzy-bralczyk': {
-    '--acc': '#3E6B52',
-    '--acc-strong': '#2C4F3C',
-    '--acc-soft': '#E5EFE8',
-    '--acc-soft2': '#EFF4F0',
-    '--acc-title': '#284A37',
-    '--acc-label': '#5A7A66',
+    '--acc': '#C9A14A',
+    '--acc-strong': '#9C7A2C',
+    '--acc-soft': '#F6ECD2',
+    '--acc-soft2': '#FBF4E2',
+    '--acc-title': '#8A6A1E',
+    '--acc-label': '#9C8345',
   },
 }
 

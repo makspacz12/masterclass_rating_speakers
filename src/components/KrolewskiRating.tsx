@@ -213,7 +213,7 @@ export default function KrolewskiRating({
           <GoldChips
             options={AUDIENCES}
             value={answers.audience}
-            onChange={(v) => onChange('audience', v as Audience)}
+            onChange={(v) => onChange('audience', v as Audience | null)}
           />
         </KPanel>
 
@@ -332,7 +332,7 @@ function GoldScale({
   onChange,
 }: {
   value: number | null
-  onChange: (v: number) => void
+  onChange: (v: number | null) => void
 }) {
   const [hover, setHover] = useState<number | null>(null)
   const reference = hover ?? value ?? 0
@@ -360,7 +360,7 @@ function GoldScale({
               type="button"
               onMouseEnter={() => setHover(n)}
               onFocus={() => setHover(n)}
-              onClick={() => onChange(n)}
+              onClick={() => onChange(n === value ? null : n)}
               whileTap={{ scale: 0.86 }}
               animate={{ scale: isEndpoint ? 1.14 : 1 }}
               transition={{ type: 'spring', stiffness: 460, damping: 17 }}
@@ -394,7 +394,7 @@ function ToggleYesNo({
   onChange,
 }: {
   value: 'tak' | 'nie' | null
-  onChange: (v: 'tak' | 'nie') => void
+  onChange: (v: 'tak' | 'nie' | null) => void
 }) {
   const opts: { value: 'tak' | 'nie'; label: string }[] = [
     { value: 'tak', label: 'Tak' },
@@ -418,7 +418,7 @@ function ToggleYesNo({
           <button
             key={opt.value}
             type="button"
-            onClick={() => onChange(opt.value)}
+            onClick={() => onChange(active ? null : opt.value)}
             className={cn(
               'relative z-10 h-11 rounded-full text-[15px] font-semibold transition-colors duration-200',
               active ? 'text-[#1a1407]' : 'text-platinum/60 hover:text-platinum-light',
@@ -440,7 +440,7 @@ function GoldChips({
 }: {
   options: readonly string[]
   value: string | null
-  onChange: (v: string) => void
+  onChange: (v: string | null) => void
 }) {
   return (
     <div className="flex flex-wrap gap-2">
@@ -450,7 +450,7 @@ function GoldChips({
           <button
             key={opt}
             type="button"
-            onClick={() => onChange(opt)}
+            onClick={() => onChange(active ? null : opt)}
             className={cn(
               'rounded-full border px-4 py-2.5 text-[13.5px] font-medium transition-all duration-200 ease-out',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40',

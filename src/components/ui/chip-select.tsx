@@ -5,7 +5,8 @@ import { cn } from '@/lib/utils'
 interface ChipSelectProps {
   options: readonly string[]
   value: string | null
-  onChange: (value: string) => void
+  /** Przekazuje wybraną wartość lub `null`, gdy użytkownik odkliknie aktywny chip. */
+  onChange: (value: string | null) => void
 }
 
 /**
@@ -21,7 +22,7 @@ export function ChipSelect({ options, value, onChange }: ChipSelectProps) {
           <button
             key={opt}
             type="button"
-            onClick={() => onChange(opt)}
+            onClick={() => onChange(active ? null : opt)}
             className={cn(
               'rounded-full border px-4 py-2.5 text-[14px] font-medium transition-all duration-200 ease-out',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--acc)_40%,transparent)]',

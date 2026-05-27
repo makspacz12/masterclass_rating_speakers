@@ -26,6 +26,10 @@ body,
   --acc-soft2: #fbf6ee;
   --acc-title: #9a5a24;
   --acc-label: #a07a4a;
+  /* Typografia per-prelegent (domyślnie = baza Moncarza). Nadpisywana inline. */
+  --f-name: 'Sora', sans-serif;
+  --f-ui: 'Inter', sans-serif;
+  --f-body: 'Inter', sans-serif;
 }
 
 body {
