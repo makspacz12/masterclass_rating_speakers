@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Home, ArrowRight } from 'lucide-react'
 import { speakers } from '@/data/speakers'
 import { emptyAnswers, type Answers } from '@/data/evaluation'
 import SpeakerRating from '@/components/SpeakerRating'
+import KrolewskiRating from '@/components/KrolewskiRating'
 import { SpeakerSwapStage } from '@/components/SpeakerSwapStage'
 import { speakerThemeVars } from '@/lib/speakerTheme'
 import { cn } from '@/lib/utils'
@@ -55,12 +56,36 @@ export default function RatingFlow() {
 
   if (!speaker) return null
 
+  // Prelegent #5 (Jarosław Królewski) — całkowicie osobny, ciemny widok (motyw
+  // landingu). Reszta prelegentów: jasna ścieżka poniżej, bez żadnych zmian.
+  const isKrolewski = speaker.id === 'jaroslaw-krolewski'
+
   return (
     <div
-      className="rating-theme flex min-h-[100dvh] w-full justify-center bg-gradient-to-b from-[#FBF8F3] via-[#F6F0E6] to-[#F1E9DB]"
-      style={speakerThemeVars(speaker.id)}
+      className={cn(
+        'flex min-h-[100dvh] w-full justify-center',
+        isKrolewski
+          ? 'bg-[#070A12]'
+          : 'rating-theme bg-gradient-to-b from-[#FBF8F3] via-[#F6F0E6] to-[#F1E9DB]',
+      )}
+      style={isKrolewski ? undefined : speakerThemeVars(speaker.id)}
     >
       <div className="relative w-full max-w-[440px]">
+        {isKrolewski ? (
+          <KrolewskiRating
+            speaker={speaker}
+            answers={answers}
+            onChange={update}
+            index={index}
+            total={total}
+            isFirst={isFirst}
+            isLast={isLast}
+            onPrev={() => go(-1)}
+            onNext={() => go(1)}
+            onHome={goHome}
+          />
+        ) : (
+          <>
         {/* === Górna nawigacja === */}
         <header className="sticky top-0 z-40 border-b border-[#EBE3D5]/80 bg-[#FBF8F3]/85 px-4 pb-3 pt-[max(0.9rem,env(safe-area-inset-top))] backdrop-blur-md">
           <div className="flex items-center justify-between gap-3">
@@ -120,6 +145,8 @@ export default function RatingFlow() {
               <ArrowRight className="h-5 w-5 transition-transform duration-300 ease-out group-hover:translate-x-1" />
             </button>
           </div>
+        )}
+          </>
         )}
       </div>
 
