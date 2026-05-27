@@ -46,8 +46,14 @@ export default function SpeakerRating({
   onChange,
 }: SpeakerRatingProps) {
   const [bioOpen, setBioOpen] = useState(false)
-  // Górski — sprężyste „odbicie" przy wciskaniu wartości na skali (tylko on).
-  const scaleVariant = speaker.id === 'krzysztof-gorski' ? 'pop' : 'lift'
+  // Animacja wciskania skali per-prelegent: Górski „odbicie", Bralczyk „wciśnięcie",
+  // pozostali domyślne uniesienie.
+  const scaleVariant =
+    speaker.id === 'krzysztof-gorski'
+      ? 'pop'
+      : speaker.id === 'jerzy-bralczyk'
+        ? 'inset'
+        : 'lift'
 
   return (
     <div className="px-5 pb-28 pt-5">

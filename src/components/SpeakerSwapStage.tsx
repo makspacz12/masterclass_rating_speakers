@@ -42,8 +42,10 @@ export function SpeakerSwapStage({
 }: SpeakerSwapStageProps) {
   const lo = Math.min(fromIndex, toIndex)
   const hi = Math.max(fromIndex, toIndex)
-  // Przejście 2↔3 (indeksy 1 i 2) — nowa animacja.
+  // Przejście 2↔3 (indeksy 1 i 2) — poziomy „carousel push".
   const isCarousel = lo === 1 && hi === 2
+  // Przejście 4↔5 (indeksy 3 i 4) — pionowy slide.
+  const isVertical = lo === 3 && hi === 4
 
   return (
     <div
@@ -96,6 +98,31 @@ export function SpeakerSwapStage({
                 initial={{ x: `${dir * 110}%` }}
                 animate={{ x: '0%' }}
                 transition={{ duration: 0.6, ease: [0.5, 0, 0.2, 1] }}
+                onAnimationComplete={onComplete}
+              >
+                <SpeakerCard speaker={to} />
+              </motion.div>
+            </>
+          ) : isVertical ? (
+            <>
+              {/* FROM — wyjeżdża w pionie (przeciwnie do wejścia TO) */}
+              <motion.div
+                className="absolute left-5 right-5 top-5"
+                style={{ ...speakerThemeVars(from.id), zIndex: 1 }}
+                initial={{ y: '0%' }}
+                animate={{ y: `${dir * -110}%` }}
+                transition={{ duration: 0.62, ease: [0.5, 0, 0.2, 1] }}
+              >
+                <SpeakerCard speaker={from} />
+              </motion.div>
+
+              {/* TO — wjeżdża w pionie na środek */}
+              <motion.div
+                className="absolute left-5 right-5 top-5"
+                style={{ ...speakerThemeVars(to.id), zIndex: 2 }}
+                initial={{ y: `${dir * 110}%` }}
+                animate={{ y: '0%' }}
+                transition={{ duration: 0.62, ease: [0.5, 0, 0.2, 1] }}
                 onAnimationComplete={onComplete}
               >
                 <SpeakerCard speaker={to} />

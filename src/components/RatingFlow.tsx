@@ -104,21 +104,23 @@ export default function RatingFlow() {
         {/* === Treść aktualnego prelegenta === */}
         <SpeakerRating speaker={speaker} answers={answers} onChange={update} />
 
-        {/* === Baton przejścia (dół) === */}
-        <div className="px-5 pb-[max(2rem,env(safe-area-inset-bottom))]">
-          <button
-            type="button"
-            onClick={() => (isLast ? goHome() : go(1))}
-            className={cn(
-              'group flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-[var(--acc)] text-[16px] font-semibold text-white',
-              'shadow-[0_12px_30px_-10px_color-mix(in_srgb,var(--acc)_70%,transparent)] transition-all duration-300 ease-out',
-              'hover:-translate-y-[2px] hover:bg-[var(--acc-strong)] active:translate-y-0 active:scale-[0.985]',
-            )}
-          >
-            {isLast ? 'Zakończ ocenę' : 'Następny prelegent'}
-            <ArrowRight className="h-5 w-5 transition-transform duration-300 ease-out group-hover:translate-x-1" />
-          </button>
-        </div>
+        {/* === Baton przejścia (dół) === — ukryty dla Bralczyka (nawigacja u góry) */}
+        {speaker.id !== 'jerzy-bralczyk' && (
+          <div className="px-5 pb-[max(2rem,env(safe-area-inset-bottom))]">
+            <button
+              type="button"
+              onClick={() => (isLast ? goHome() : go(1))}
+              className={cn(
+                'group flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-[var(--acc)] text-[16px] font-semibold text-white',
+                'shadow-[0_12px_30px_-10px_color-mix(in_srgb,var(--acc)_70%,transparent)] transition-all duration-300 ease-out',
+                'hover:-translate-y-[2px] hover:bg-[var(--acc-strong)] active:translate-y-0 active:scale-[0.985]',
+              )}
+            >
+              {isLast ? 'Zakończ ocenę' : 'Następny prelegent'}
+              <ArrowRight className="h-5 w-5 transition-transform duration-300 ease-out group-hover:translate-x-1" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* === Scena przejścia „talia kart" === */}

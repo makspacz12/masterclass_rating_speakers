@@ -6,14 +6,14 @@ import type { CSSProperties } from 'react'
  * — czyli Moncarz i pozostali zostają bez zmian. Tu trzymamy tylko wyjątki.
  */
 const THEMES: Record<string, Record<string, string>> = {
-  // Czubkowska — złoto / szampan (z landingu, jasne)
+  // Czubkowska — śliwkowy magenta (mocny, editorialny; kompletnie inny od reszty)
   'sylwia-czubkowska': {
-    '--acc': '#C9A14A',
-    '--acc-strong': '#9C7A2C',
-    '--acc-soft': '#F6ECD2',
-    '--acc-soft2': '#FBF4E2',
-    '--acc-title': '#8A6A1E',
-    '--acc-label': '#9C8345',
+    '--acc': '#A8336B',
+    '--acc-strong': '#7E2450',
+    '--acc-soft': '#F7E3EE',
+    '--acc-soft2': '#FBEFF5',
+    '--acc-title': '#6E2147',
+    '--acc-label': '#9A5B7E',
   },
   // Górski — stalowy błękit / platyna (z landingu, głęboki, nie cyjan)
   'krzysztof-gorski': {
@@ -23,6 +23,15 @@ const THEMES: Record<string, Record<string, string>> = {
     '--acc-soft2': '#EFF3F7',
     '--acc-title': '#3E5972',
     '--acc-label': '#5E7585',
+  },
+  // Bralczyk — głęboka leśna zieleń (klasyczny, „literacki" charakter)
+  'jerzy-bralczyk': {
+    '--acc': '#3E6B52',
+    '--acc-strong': '#2C4F3C',
+    '--acc-soft': '#E5EFE8',
+    '--acc-soft2': '#EFF4F0',
+    '--acc-title': '#284A37',
+    '--acc-label': '#5A7A66',
   },
 }
 

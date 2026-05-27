@@ -26,6 +26,7 @@ interface SpeakerCardProps {
 export function SpeakerCard({ speaker, bio }: SpeakerCardProps) {
   const open = bio?.open ?? false
   const isCzubkowska = speaker.id === 'sylwia-czubkowska'
+  const isBralczyk = speaker.id === 'jerzy-bralczyk'
   const roleLabel = isCzubkowska ? 'Prelegentka' : 'Prelegent'
 
   return (
@@ -56,9 +57,12 @@ export function SpeakerCard({ speaker, bio }: SpeakerCardProps) {
             className={cn(
               'mt-1 leading-snug text-[var(--acc-title)]',
               isCzubkowska
-                ? // zupełnie inna czcionka — nowoczesny display, bez kursywy
+                ? // nowoczesny display, bez kursywy
                   'font-display text-[19px] font-semibold tracking-[-0.015em]'
-                : 'font-serif text-[18px] italic',
+                : isBralczyk
+                  ? // klasyczna, „literacka" zasada serif (większa, bez kursywy)
+                    'font-serif text-[22px] font-medium not-italic leading-[1.15]'
+                  : 'font-serif text-[18px] italic',
             )}
           >
             {speaker.talkTitle}
@@ -76,6 +80,22 @@ export function SpeakerCard({ speaker, bio }: SpeakerCardProps) {
           >
             Poznaj sylwetkę
             <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </button>
+        ) : isBralczyk ? (
+          // klasyczny serifowy link z podkreśleniem (inny od kafla i pigułki)
+          <button
+            type="button"
+            onClick={bio?.onToggle}
+            disabled={!bio}
+            className="group mt-4 inline-flex items-center gap-2 font-serif text-[17px] italic text-[var(--acc-strong)] underline decoration-[color-mix(in_srgb,var(--acc)_45%,transparent)] decoration-1 underline-offset-[6px] transition-colors hover:decoration-[var(--acc)] disabled:cursor-default"
+          >
+            {open ? 'Zwiń biografię' : 'Czytaj biografię'}
+            <ChevronDown
+              className={cn(
+                'h-4 w-4 transition-transform duration-300',
+                open && 'rotate-180',
+              )}
+            />
           </button>
         ) : (
           <button
@@ -111,7 +131,10 @@ export function SpeakerCard({ speaker, bio }: SpeakerCardProps) {
                   {speaker.bio.split('\n').map((para, i) => (
                     <p
                       key={i}
-                      className="text-[14px] leading-relaxed text-[#56514A]"
+                      className={cn(
+                        'leading-relaxed text-[#56514A]',
+                        isBralczyk ? 'font-serif text-[16.5px]' : 'text-[14px]',
+                      )}
                     >
                       {para}
                     </p>
