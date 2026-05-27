@@ -22,6 +22,7 @@ interface GorskiRatingProps {
   speaker: Speaker
   answers: Answers
   onChange: <K extends keyof Answers>(field: K, value: Answers[K]) => void
+  questions: string[]
   index: number
   total: number
   isFirst: boolean
@@ -38,6 +39,7 @@ export default function GorskiRating({
   speaker,
   answers,
   onChange,
+  questions,
   index,
   total,
   isFirst,
@@ -108,7 +110,8 @@ export default function GorskiRating({
               src={speaker.photo}
               alt={speaker.name}
               draggable={false}
-              className="h-full w-full object-cover object-top"
+              style={{ objectPosition: speaker.focus ?? '50% 30%' }}
+              className="h-full w-full object-cover"
             />
           </div>
         </motion.div>
@@ -184,26 +187,26 @@ export default function GorskiRating({
 
       {/* === Pytania === */}
       <div className="mt-6 space-y-4 px-5 pb-8">
-        <QPanel n={1} question="Ocena ogólna prelegenta">
+        <QPanel n={1} question={questions[0]}>
           <SignalScale value={answers.overall} onChange={(v) => onChange('overall', v)} />
         </QPanel>
-        <QPanel n={2} question="Na ile treść była wartościowa merytorycznie?">
+        <QPanel n={2} question={questions[1]}>
           <SignalScale value={answers.substance} onChange={(v) => onChange('substance', v)} />
         </QPanel>
-        <QPanel n={3} question="Czy zaprosił(a)byś tego prelegenta ponownie?">
+        <QPanel n={3} question={questions[2]}>
           <CoolToggle
             value={answers.inviteAgain}
             onChange={(v) => onChange('inviteAgain', v)}
           />
         </QPanel>
-        <QPanel n={4} question="Dla kogo to wystąpienie było najbardziej wartościowe?">
+        <QPanel n={4} question={questions[3]}>
           <TagSelect
             options={AUDIENCES}
             value={answers.audience}
             onChange={(v) => onChange('audience', v as Audience | null)}
           />
         </QPanel>
-        <QPanel n={5} question="Jakie pytanie zadał(a)byś temu prelegentowi po wystąpieniu?">
+        <QPanel n={5} question={questions[4]}>
           <CoolTextarea
             value={answers.question}
             onChange={(v) => onChange('question', v)}
@@ -211,7 +214,7 @@ export default function GorskiRating({
             placeholder="Twoje pytanie…"
           />
         </QPanel>
-        <QPanel n={6} question="Twoje uwagi na temat wystąpienia">
+        <QPanel n={6} question={questions[5]}>
           <CoolTextarea
             value={answers.notes}
             onChange={(v) => onChange('notes', v)}

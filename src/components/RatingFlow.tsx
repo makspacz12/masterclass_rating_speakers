@@ -9,6 +9,7 @@ import KrolewskiRating from '@/components/KrolewskiRating'
 import GorskiRating from '@/components/GorskiRating'
 import { SpeakerSwapStage } from '@/components/SpeakerSwapStage'
 import { speakerThemeVars } from '@/lib/speakerTheme'
+import { useQuestions } from '@/hooks/useQuestions'
 import { cn } from '@/lib/utils'
 
 const clamp = (v: number, min: number, max: number) =>
@@ -29,6 +30,8 @@ export default function RatingFlow() {
   const total = speakers.length
   const speaker = speakers[index]
   const answers = speaker ? answersMap[speaker.id] ?? emptyAnswers : emptyAnswers
+  // Treści pytań pochodzą z Supabase (tabela `pytania`), nie z pliku.
+  const questions = useQuestions()
 
   const update = <K extends keyof Answers>(field: K, value: Answers[K]) => {
     if (!speaker) return
@@ -83,6 +86,7 @@ export default function RatingFlow() {
             speaker={speaker}
             answers={answers}
             onChange={update}
+            questions={questions}
             index={index}
             total={total}
             isFirst={isFirst}
@@ -96,6 +100,7 @@ export default function RatingFlow() {
             speaker={speaker}
             answers={answers}
             onChange={update}
+            questions={questions}
             index={index}
             total={total}
             isFirst={isFirst}
@@ -147,7 +152,12 @@ export default function RatingFlow() {
         </header>
 
         {/* === Treść aktualnego prelegenta === */}
-        <SpeakerRating speaker={speaker} answers={answers} onChange={update} />
+        <SpeakerRating
+          speaker={speaker}
+          answers={answers}
+          onChange={update}
+          questions={questions}
+        />
 
         {/* === Baton przejścia (dół) === — ukryty dla Bralczyka (nawigacja u góry) */}
         {speaker.id !== 'jerzy-bralczyk' && (

@@ -13,6 +13,13 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  *
  * iOS 13+ wymaga zgody użytkownika (DeviceOrientationEvent.requestPermission),
  * którą trzeba wywołać w odpowiedzi na gest — stąd funkcja `enableGyro()`.
+ *
+ * KLUCZOWE poprawki (żeby „w ogóle nie działa" przestało się zdarzać):
+ *  • Auto-kalibracja: punkt neutralny bierzemy z PIERWSZEGO odczytu, czyli z tego,
+ *    jak telefon jest faktycznie trzymany. Wcześniej sztywne `beta = 45°` powodowało,
+ *    że przy normalnym (pionowym) chwycie robot był od razu „przyklejony" do skraju.
+ *  • Fallback na `deviceorientationabsolute` — część urządzeń (gł. Android) nie
+ *    emituje `deviceorientation`, tylko wariant absolutny.
  */
 
 type IOSDeviceOrientationEvent = typeof DeviceOrientationEvent & {
@@ -42,19 +49,36 @@ export function useTiltControl(
   const current = useRef({ x: 0.5, y: 0.5 })
   const rafRef = useRef<number | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const listeningRef = useRef(false)
+
+  // punkt neutralny ustalony przy pierwszym odczycie (auto-kalibracja chwytu)
+  const baseline = useRef<{ gamma: number; beta: number } | null>(null)
 
   useEffect(() => {
     setIsTouch(isTouchDevice())
   }, [])
 
-  // Zakres przechylenia (w stopniach) odwzorowany na pełną szerokość/wysokość.
+  // Zakres przechylenia (w stopniach) odwzorowany na pełną szerokość/wysokość,
+  // liczony jako odchylenie od punktu neutralnego (a nie od sztywnych 45°).
   const handleOrientation = useCallback((e: DeviceOrientationEvent) => {
-    const gamma = e.gamma ?? 0 // -90..90  (lewo / prawo)
-    const beta = e.beta ?? 45 // -180..180 (przód / tył), ~45 = naturalny chwyt
-    const range = 32
+    // niektóre urządzenia emitują zdarzenie z nullami zanim sensor się rozgrzeje
+    if (e.gamma == null && e.beta == null) return
 
-    const nx = 0.5 + clamp(gamma, -range, range) / range / 2
-    const ny = 0.5 + clamp(beta - 45, -range, range) / range / 2
+    const gamma = e.gamma ?? 0 // -90..90  (lewo / prawo)
+    const beta = e.beta ?? 0 // -180..180 (przód / tył)
+
+    // pierwszy sensowny odczyt = punkt neutralny (tak, jak trzymasz telefon teraz)
+    if (!baseline.current) {
+      baseline.current = { gamma, beta }
+      setGyroActive(true)
+    }
+
+    const range = 28
+    const dGamma = clamp(gamma - baseline.current.gamma, -range, range)
+    const dBeta = clamp(beta - baseline.current.beta, -range, range)
+
+    const nx = 0.5 + dGamma / range / 2
+    const ny = 0.5 + dBeta / range / 2
 
     target.current = { x: clamp(nx, 0, 1), y: clamp(ny, 0, 1) }
   }, [])
@@ -92,10 +116,29 @@ export function useTiltControl(
   }, [containerRef])
 
   const startListening = useCallback(() => {
+    if (listeningRef.current) return
+    listeningRef.current = true
+    // główne zdarzenie + fallback (część Androidów emituje tylko wariant absolutny)
     window.addEventListener('deviceorientation', handleOrientation, true)
+    window.addEventListener(
+      'deviceorientationabsolute',
+      handleOrientation as EventListener,
+      true,
+    )
     if (rafRef.current == null) rafRef.current = requestAnimationFrame(loop)
-    setGyroActive(true)
   }, [handleOrientation, loop])
+
+  const stopListening = useCallback(() => {
+    window.removeEventListener('deviceorientation', handleOrientation, true)
+    window.removeEventListener(
+      'deviceorientationabsolute',
+      handleOrientation as EventListener,
+      true,
+    )
+    if (rafRef.current != null) cancelAnimationFrame(rafRef.current)
+    rafRef.current = null
+    listeningRef.current = false
+  }, [handleOrientation])
 
   /** Wywołaj w reakcji na gest (np. pierwsze dotknięcie) — prosi o zgodę na iOS. */
   const enableGyro = useCallback(async () => {
@@ -119,12 +162,8 @@ export function useTiltControl(
     if (typeof DOE?.requestPermission !== 'function') {
       startListening()
     }
-    return () => {
-      window.removeEventListener('deviceorientation', handleOrientation, true)
-      if (rafRef.current != null) cancelAnimationFrame(rafRef.current)
-      rafRef.current = null
-    }
-  }, [isTouch, startListening, handleOrientation])
+    return () => stopListening()
+  }, [isTouch, startListening, stopListening])
 
   return { isTouch, gyroActive, enableGyro }
 }

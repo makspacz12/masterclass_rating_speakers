@@ -13,6 +13,21 @@ export const AUDIENCES = [
 
 export type Audience = (typeof AUDIENCES)[number]
 
+/**
+ * Domyślne treści pytań — FALLBACK, gdy baza (`pytania`) jeszcze się ładuje lub
+ * jest niedostępna. Źródłem prawdy są dane z Supabase (patrz `useQuestions`);
+ * tu trzymamy te same teksty tylko po to, by UI nigdy nie migało pustką.
+ * Kolejność = kolejność pól formularza i wierszy w tabeli (id 1..6).
+ */
+export const QUESTIONS = [
+  'Ocena ogólna prelegenta',
+  'Na ile treść była wartościowa merytorycznie?',
+  'Czy zaprosił(a)byś tego prelegenta ponownie?',
+  'Dla kogo to wystąpienie było najbardziej wartościowe?',
+  'Jakie pytanie zadał(a)byś temu prelegentowi po wystąpieniu?',
+  'Twoje uwagi na temat wystąpienia',
+] as const
+
 /** Stan odpowiedzi dla jednego prelegenta. */
 export interface Answers {
   overall: number | null // ocena ogólna 1–10

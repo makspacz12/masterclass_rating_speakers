@@ -23,6 +23,7 @@ interface KrolewskiRatingProps {
   speaker: Speaker
   answers: Answers
   onChange: <K extends keyof Answers>(field: K, value: Answers[K]) => void
+  questions: string[]
   index: number
   total: number
   isFirst: boolean
@@ -38,6 +39,7 @@ export default function KrolewskiRating({
   speaker,
   answers,
   onChange,
+  questions,
   index,
   total,
   isFirst,
@@ -99,7 +101,8 @@ export default function KrolewskiRating({
             initial={{ scale: 1.12 }}
             animate={{ scale: 1 }}
             transition={{ duration: 1.4, ease: EASE }}
-            className="h-full w-full object-cover object-top"
+            style={{ objectPosition: speaker.focus ?? '50% 30%' }}
+            className="h-full w-full object-cover"
           />
           {/* przyciemnienie pod tekst */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#070A12] via-[#070A12]/35 to-transparent" />
@@ -191,25 +194,25 @@ export default function KrolewskiRating({
 
       {/* === Pytania === */}
       <div className="mt-6 space-y-5 px-6 pb-8">
-        <KPanel index={1} question="Ocena ogólna prelegenta">
+        <KPanel index={1} question={questions[0]}>
           <GoldScale value={answers.overall} onChange={(v) => onChange('overall', v)} />
         </KPanel>
 
-        <KPanel index={2} question="Na ile treść była wartościowa merytorycznie?">
+        <KPanel index={2} question={questions[1]}>
           <GoldScale
             value={answers.substance}
             onChange={(v) => onChange('substance', v)}
           />
         </KPanel>
 
-        <KPanel index={3} question="Czy zaprosił(a)byś tego prelegenta ponownie?">
+        <KPanel index={3} question={questions[2]}>
           <ToggleYesNo
             value={answers.inviteAgain}
             onChange={(v) => onChange('inviteAgain', v)}
           />
         </KPanel>
 
-        <KPanel index={4} question="Dla kogo to wystąpienie było najbardziej wartościowe?">
+        <KPanel index={4} question={questions[3]}>
           <GoldChips
             options={AUDIENCES}
             value={answers.audience}
@@ -217,7 +220,7 @@ export default function KrolewskiRating({
           />
         </KPanel>
 
-        <KPanel index={5} question="Jakie pytanie zadał(a)byś temu prelegentowi po wystąpieniu?">
+        <KPanel index={5} question={questions[4]}>
           <KTextarea
             value={answers.question}
             onChange={(v) => onChange('question', v)}
@@ -226,7 +229,7 @@ export default function KrolewskiRating({
           />
         </KPanel>
 
-        <KPanel index={6} question="Twoje uwagi na temat wystąpienia">
+        <KPanel index={6} question={questions[5]}>
           <KTextarea
             value={answers.notes}
             onChange={(v) => onChange('notes', v)}

@@ -14,6 +14,8 @@ interface SpeakerRatingProps {
   speaker: Speaker
   answers: Answers
   onChange: <K extends keyof Answers>(field: K, value: Answers[K]) => void
+  /** Treści 6 pytań (z Supabase). Kolejność = pola formularza. */
+  questions: string[]
 }
 
 function QuestionCard({
@@ -44,6 +46,7 @@ export default function SpeakerRating({
   speaker,
   answers,
   onChange,
+  questions,
 }: SpeakerRatingProps) {
   const [bioOpen, setBioOpen] = useState(false)
   // Animacja wciskania skali per-prelegent: Górski „odbicie", Bralczyk „wciśnięcie",
@@ -75,7 +78,7 @@ export default function SpeakerRating({
       </div>
 
       <div className="mt-5 space-y-4">
-        <QuestionCard index={1} question="Ocena ogólna prelegenta">
+        <QuestionCard index={1} question={questions[0]}>
           <ScaleRating
             value={answers.overall}
             onChange={(v) => onChange('overall', v)}
@@ -83,10 +86,7 @@ export default function SpeakerRating({
           />
         </QuestionCard>
 
-        <QuestionCard
-          index={2}
-          question="Na ile treść była wartościowa merytorycznie?"
-        >
+        <QuestionCard index={2} question={questions[1]}>
           <ScaleRating
             value={answers.substance}
             onChange={(v) => onChange('substance', v)}
@@ -94,10 +94,7 @@ export default function SpeakerRating({
           />
         </QuestionCard>
 
-        <QuestionCard
-          index={3}
-          question="Czy zaprosił(a)byś tego prelegenta ponownie?"
-        >
+        <QuestionCard index={3} question={questions[2]}>
           <Segmented
             options={[
               { value: 'tak', label: 'Tak' },
@@ -108,10 +105,7 @@ export default function SpeakerRating({
           />
         </QuestionCard>
 
-        <QuestionCard
-          index={4}
-          question="Dla kogo to wystąpienie było najbardziej wartościowe?"
-        >
+        <QuestionCard index={4} question={questions[3]}>
           <ChipSelect
             options={AUDIENCES}
             value={answers.audience}
@@ -119,10 +113,7 @@ export default function SpeakerRating({
           />
         </QuestionCard>
 
-        <QuestionCard
-          index={5}
-          question="Jakie pytanie zadał(a)byś temu prelegentowi po wystąpieniu?"
-        >
+        <QuestionCard index={5} question={questions[4]}>
           <textarea
             value={answers.question}
             onChange={(e) => onChange('question', e.target.value)}
@@ -132,7 +123,7 @@ export default function SpeakerRating({
           />
         </QuestionCard>
 
-        <QuestionCard index={6} question="Twoje uwagi na temat wystąpienia">
+        <QuestionCard index={6} question={questions[5]}>
           <textarea
             value={answers.notes}
             onChange={(e) => onChange('notes', e.target.value)}

@@ -37,7 +37,8 @@ export function SpeakerCard({ speaker, bio }: SpeakerCardProps) {
           src={speaker.photo}
           alt={speaker.name}
           draggable={false}
-          className="h-72 w-full object-cover object-top"
+          style={{ objectPosition: speaker.focus ?? '50% 30%' }}
+          className="h-72 w-full object-cover"
         />
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent" />
       </div>
@@ -187,7 +188,8 @@ export function SpeakerCard({ speaker, bio }: SpeakerCardProps) {
                       src={speaker.photo}
                       alt={speaker.name}
                       draggable={false}
-                      className="h-56 w-full object-cover object-top"
+                      style={{ objectPosition: speaker.focus ?? '50% 30%' }}
+                      className="h-56 w-full object-cover"
                     />
                     <span className="absolute left-1/2 top-2.5 h-1 w-10 -translate-x-1/2 rounded-full bg-white/70" />
                     <button
