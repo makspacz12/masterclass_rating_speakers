@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import type { ElementType } from 'react'
+import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 interface ScaleRatingProps {
@@ -9,6 +11,12 @@ interface ScaleRatingProps {
   lowLabel?: string
   highLabel?: string
   max?: number
+  /**
+   * Wariant animacji wyboru:
+   *  • 'lift' (domyślny) — płynne uniesienie skrajnej wartości (CSS),
+   *  • 'pop'  — sprężyste „odbicie" wciśniętej wartości (framer-motion).
+   */
+  pressVariant?: 'lift' | 'pop'
 }
 
 /**
@@ -21,11 +29,14 @@ export function ScaleRating({
   lowLabel = '1 — słaba',
   highLabel = '10 — najwyższa',
   max = 10,
+  pressVariant = 'lift',
 }: ScaleRatingProps) {
   const [hover, setHover] = useState<number | null>(null)
   const items = Array.from({ length: max }, (_, i) => i + 1)
   const reference = hover ?? value ?? 0
   const endpoint = hover ?? value
+  const isPop = pressVariant === 'pop'
+  const Btn = (isPop ? motion.button : 'button') as ElementType
 
   return (
     <div>
@@ -36,25 +47,38 @@ export function ScaleRating({
         {items.map((n) => {
           const filled = n <= reference
           const isEndpoint = n === endpoint
+          const popProps = isPop
+            ? {
+                whileTap: { scale: 0.84 },
+                animate: { scale: isEndpoint ? 1.16 : 1 },
+                transition: { type: 'spring', stiffness: 480, damping: 16 },
+              }
+            : {}
           return (
-            <button
+            <Btn
               key={n}
               type="button"
               onMouseEnter={() => setHover(n)}
               onFocus={() => setHover(n)}
               onClick={() => onChange(n)}
+              {...popProps}
               className={cn(
-                'flex h-11 flex-1 items-center justify-center rounded-xl border text-[15px] font-semibold tabular-nums transition-all duration-200 ease-out',
+                'flex h-11 flex-1 items-center justify-center rounded-xl border text-[15px] font-semibold tabular-nums',
+                isPop ? 'transition-colors duration-200' : 'transition-all duration-200 ease-out',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--acc)_40%,transparent)]',
                 filled
                   ? 'border-transparent bg-[var(--acc)] text-white'
                   : 'border-[#E7DECF] bg-white text-[#6B6457] hover:border-[color-mix(in_srgb,var(--acc)_40%,transparent)]',
                 isEndpoint &&
+                  !isPop &&
                   'z-10 scale-[1.1] shadow-[0_8px_20px_-6px_color-mix(in_srgb,var(--acc)_65%,transparent)]',
+                isEndpoint &&
+                  isPop &&
+                  'z-10 shadow-[0_10px_26px_-6px_color-mix(in_srgb,var(--acc)_75%,transparent)]',
               )}
             >
               {n}
-            </button>
+            </Btn>
           )
         })}
       </div>

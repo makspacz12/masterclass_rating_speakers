@@ -46,6 +46,8 @@ export default function SpeakerRating({
   onChange,
 }: SpeakerRatingProps) {
   const [bioOpen, setBioOpen] = useState(false)
+  // Górski — sprężyste „odbicie" przy wciskaniu wartości na skali (tylko on).
+  const scaleVariant = speaker.id === 'krzysztof-gorski' ? 'pop' : 'lift'
 
   return (
     <div className="px-5 pb-28 pt-5">
@@ -71,6 +73,7 @@ export default function SpeakerRating({
           <ScaleRating
             value={answers.overall}
             onChange={(v) => onChange('overall', v)}
+            pressVariant={scaleVariant}
           />
         </QuestionCard>
 
@@ -81,6 +84,7 @@ export default function SpeakerRating({
           <ScaleRating
             value={answers.substance}
             onChange={(v) => onChange('substance', v)}
+            pressVariant={scaleVariant}
           />
         </QuestionCard>
 
