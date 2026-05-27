@@ -56,6 +56,6 @@ select
   p.id,
   q.id,
   row_number() over (partition by a.id, p.id order by q.id) as kolejnosc
-from ankiety a
+from ankiety adla 
 cross join prelegenci p
 cross join pytania q;

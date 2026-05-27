@@ -27,10 +27,10 @@ export function Segmented<T extends string>({
             onClick={() => onChange(opt.value)}
             className={cn(
               'h-12 rounded-xl border text-[15px] font-semibold transition-all duration-200 ease-out',
-              'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#DD7A3B]/40',
+              'focus:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--acc)_40%,transparent)]',
               active
-                ? 'border-transparent bg-[#DD7A3B] text-white shadow-[0_6px_18px_-6px_rgba(221,122,59,0.6)]'
-                : 'border-[#E7DECF] bg-white text-[#6B6457] hover:-translate-y-[1px] hover:border-[#DD7A3B]/40 hover:text-[#C5642A]',
+                ? 'border-transparent bg-[var(--acc)] text-white shadow-[0_6px_18px_-6px_color-mix(in_srgb,var(--acc)_60%,transparent)]'
+                : 'border-[#E7DECF] bg-white text-[#6B6457] hover:-translate-y-[1px] hover:border-[color-mix(in_srgb,var(--acc)_40%,transparent)] hover:text-[var(--acc-strong)]',
             )}
           >
             {opt.label}

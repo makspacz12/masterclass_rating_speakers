@@ -6,6 +6,7 @@ import { speakers } from '@/data/speakers'
 import { emptyAnswers, type Answers } from '@/data/evaluation'
 import SpeakerRating from '@/components/SpeakerRating'
 import { SpeakerSwapStage } from '@/components/SpeakerSwapStage'
+import { speakerThemeVars } from '@/lib/speakerTheme'
 import { cn } from '@/lib/utils'
 
 const clamp = (v: number, min: number, max: number) =>
@@ -55,7 +56,10 @@ export default function RatingFlow() {
   if (!speaker) return null
 
   return (
-    <div className="flex min-h-[100dvh] w-full justify-center bg-gradient-to-b from-[#FBF8F3] via-[#F6F0E6] to-[#F1E9DB]">
+    <div
+      className="rating-theme flex min-h-[100dvh] w-full justify-center bg-gradient-to-b from-[#FBF8F3] via-[#F6F0E6] to-[#F1E9DB]"
+      style={speakerThemeVars(speaker.id)}
+    >
       <div className="relative w-full max-w-[440px]">
         {/* === Górna nawigacja === */}
         <header className="sticky top-0 z-40 border-b border-[#EBE3D5]/80 bg-[#FBF8F3]/85 px-4 pb-3 pt-[max(0.9rem,env(safe-area-inset-top))] backdrop-blur-md">
@@ -77,7 +81,7 @@ export default function RatingFlow() {
               className="flex flex-col items-center rounded-xl px-3 py-1 transition-colors hover:bg-[#F1E7D8]"
             >
               <span className="flex items-center gap-1.5 text-[12px] font-semibold text-[#1C1B1F]">
-                <Home className="h-3.5 w-3.5 text-[#C5642A]" />
+                <Home className="h-3.5 w-3.5 text-[var(--acc-strong)]" />
                 Strona główna
               </span>
               <span className="mt-0.5 text-[11px] tabular-nums text-[#A99A80]">
@@ -106,9 +110,9 @@ export default function RatingFlow() {
             type="button"
             onClick={() => (isLast ? goHome() : go(1))}
             className={cn(
-              'group flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-[#DD7A3B] text-[16px] font-semibold text-white',
-              'shadow-[0_12px_30px_-10px_rgba(221,122,59,0.7)] transition-all duration-300 ease-out',
-              'hover:-translate-y-[2px] hover:bg-[#C5642A] active:translate-y-0 active:scale-[0.985]',
+              'group flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-[var(--acc)] text-[16px] font-semibold text-white',
+              'shadow-[0_12px_30px_-10px_color-mix(in_srgb,var(--acc)_70%,transparent)] transition-all duration-300 ease-out',
+              'hover:-translate-y-[2px] hover:bg-[var(--acc-strong)] active:translate-y-0 active:scale-[0.985]',
             )}
           >
             {isLast ? 'Zakończ ocenę' : 'Następny prelegent'}
@@ -123,6 +127,7 @@ export default function RatingFlow() {
           from={speakers[transition.from]}
           to={speakers[transition.to]}
           dir={transition.dir}
+          fromIndex={transition.from}
           toIndex={transition.to}
           total={total}
           onComplete={() => {
@@ -154,10 +159,10 @@ function NavBaton({
       aria-label={ariaLabel}
       className={cn(
         'flex h-10 items-center gap-1.5 rounded-xl border px-3 text-[14px] font-semibold transition-all duration-200 ease-out',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#DD7A3B]/40',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--acc)_40%,transparent)]',
         disabled
           ? 'cursor-not-allowed border-[#EFE8DB] bg-transparent text-[#CFC6B4]'
-          : 'border-[#E7DECF] bg-white text-[#3A3730] hover:-translate-y-[1px] hover:border-[#DD7A3B]/45 hover:text-[#C5642A] active:translate-y-0 active:scale-[0.97]',
+          : 'border-[#E7DECF] bg-white text-[#3A3730] hover:-translate-y-[1px] hover:border-[color-mix(in_srgb,var(--acc)_45%,transparent)] hover:text-[var(--acc-strong)] active:translate-y-0 active:scale-[0.97]',
       )}
     >
       {children}

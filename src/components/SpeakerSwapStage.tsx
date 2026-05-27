@@ -4,11 +4,13 @@ import { motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Home } from 'lucide-react'
 import type { Speaker } from '@/data/speakers'
 import { SpeakerCard } from '@/components/SpeakerCard'
+import { speakerThemeVars } from '@/lib/speakerTheme'
 
 interface SpeakerSwapStageProps {
   from: Speaker
   to: Speaker
   dir: number // 1 = następny, -1 = poprzedni
+  fromIndex: number
   toIndex: number
   total: number
   onComplete: () => void
@@ -22,24 +24,30 @@ const TIMES = [0, 0.42, 0.72, 1]
 const SMALL = 0.4
 
 /**
- * Scena przejścia „talia kart z głębią":
- *  • obecny prelegent (FROM) kurczy się do małej karty na środku i znika w tyle,
- *  • następny (TO) wchodzi małą kartą z boku (zależnie od kierunku), przesuwa się
- *    na środek wciąż mały („zamiana w tyle"), po czym wyrasta na pełny rozmiar.
- * Karta TO jest zawsze na wierzchu (wystaje zza obecnej). Po zakończeniu animacji
- * wołane jest onComplete() — wtedy RatingFlow commituje indeks i chowa scenę.
+ * Scena przejścia między prelegentami. Animacja dobierana PER PARA indeksów
+ * (twarda zasada: zmiana jednego przejścia nie rusza pozostałych):
+ *  • para {1,2} (prelegent 2↔3) → poziomy „carousel push" (slajdy jadą w bok),
+ *  • pozostałe pary → domyślna „talia kart z głębią" (FROM kurczy się w tył,
+ *    zamienia z małym TO, TO wyrasta do pełni).
+ * Po zakończeniu animacji karty TO wołane jest onComplete().
  */
 export function SpeakerSwapStage({
   from,
   to,
   dir,
+  fromIndex,
   toIndex,
   total,
   onComplete,
 }: SpeakerSwapStageProps) {
+  const lo = Math.min(fromIndex, toIndex)
+  const hi = Math.max(fromIndex, toIndex)
+  // Przejście 2↔3 (indeksy 1 i 2) — nowa animacja.
+  const isCarousel = lo === 1 && hi === 2
+
   return (
     <div
-      className="fixed inset-0 z-50 overflow-hidden bg-gradient-to-b from-[#FBF8F3] via-[#F6F0E6] to-[#F1E9DB]"
+      className="rating-theme fixed inset-0 z-50 overflow-hidden bg-gradient-to-b from-[#FBF8F3] via-[#F6F0E6] to-[#F1E9DB]"
       style={{ perspective: 1400 }}
     >
       <div className="mx-auto flex h-full w-full max-w-[440px] flex-col">
@@ -52,7 +60,7 @@ export function SpeakerSwapStage({
             </div>
             <div className="flex flex-col items-center px-3 py-1">
               <span className="flex items-center gap-1.5 text-[12px] font-semibold text-[#1C1B1F]">
-                <Home className="h-3.5 w-3.5 text-[#C5642A]" />
+                <Home className="h-3.5 w-3.5 text-[var(--acc-strong)]" />
                 Strona główna
               </span>
               <span className="mt-0.5 text-[11px] tabular-nums text-[#A99A80]">
@@ -68,53 +76,82 @@ export function SpeakerSwapStage({
 
         {/* obszar treści */}
         <div className="relative flex-1">
-          {/* miękki cień głębi za kartami */}
-          <div
-            className="pointer-events-none absolute left-1/2 top-[42%] h-64 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{
-              background:
-                'radial-gradient(ellipse at center, rgba(28,27,31,0.16) 0%, transparent 70%)',
-              filter: 'blur(18px)',
-            }}
-          />
+          {isCarousel ? (
+            <>
+              {/* FROM — wyjeżdża w bok (przeciwnie do wejścia TO) */}
+              <motion.div
+                className="absolute left-5 right-5 top-5"
+                style={{ ...speakerThemeVars(from.id), zIndex: 1 }}
+                initial={{ x: '0%' }}
+                animate={{ x: `${dir * -110}%` }}
+                transition={{ duration: 0.6, ease: [0.5, 0, 0.2, 1] }}
+              >
+                <SpeakerCard speaker={from} />
+              </motion.div>
 
-          {/* FROM — obecny: pełny → mały prostokąt w głębi → odjeżdża w bok i znika */}
-          <motion.div
-            className="absolute left-5 right-5 top-5"
-            style={{ transformOrigin: 'center', zIndex: 1 }}
-            initial={{ scale: 1, x: 0, opacity: 1, filter: 'blur(0px)' }}
-            animate={{
-              scale: [1, SMALL, SMALL, SMALL],
-              x: [0, 0, dir * 116, dir * 116],
-              opacity: [1, 1, 1, 0],
-              filter: ['blur(0px)', 'blur(1.5px)', 'blur(1.5px)', 'blur(3px)'],
-            }}
-            transition={{ duration: DURATION, times: TIMES, ease: 'easeInOut' }}
-          >
-            <SpeakerCard speaker={from} />
-          </motion.div>
+              {/* TO — wjeżdża z boku na środek */}
+              <motion.div
+                className="absolute left-5 right-5 top-5"
+                style={{ ...speakerThemeVars(to.id), zIndex: 2 }}
+                initial={{ x: `${dir * 110}%` }}
+                animate={{ x: '0%' }}
+                transition={{ duration: 0.6, ease: [0.5, 0, 0.2, 1] }}
+                onAnimationComplete={onComplete}
+              >
+                <SpeakerCard speaker={to} />
+              </motion.div>
+            </>
+          ) : (
+            <>
+              {/* miękki cień głębi za kartami */}
+              <div
+                className="pointer-events-none absolute left-1/2 top-[42%] h-64 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                style={{
+                  background:
+                    'radial-gradient(ellipse at center, rgba(28,27,31,0.16) 0%, transparent 70%)',
+                  filter: 'blur(18px)',
+                }}
+              />
 
-          {/* TO — następny: mały prostokąt z boku → na środek (zamiana) → rośnie */}
-          <motion.div
-            className="absolute left-5 right-5 top-5"
-            style={{ transformOrigin: 'center', zIndex: 2 }}
-            initial={{
-              scale: SMALL,
-              x: dir * 116,
-              opacity: 0.92,
-              filter: 'blur(1.5px)',
-            }}
-            animate={{
-              scale: [SMALL, SMALL, SMALL, 1],
-              x: [dir * 116, dir * 116, 0, 0],
-              opacity: [0.92, 1, 1, 1],
-              filter: ['blur(1.5px)', 'blur(1.5px)', 'blur(1px)', 'blur(0px)'],
-            }}
-            transition={{ duration: DURATION, times: TIMES, ease: 'easeInOut' }}
-            onAnimationComplete={onComplete}
-          >
-            <SpeakerCard speaker={to} />
-          </motion.div>
+              {/* FROM — obecny: pełny → mały prostokąt w głębi → odjeżdża w bok i znika */}
+              <motion.div
+                className="absolute left-5 right-5 top-5"
+                style={{ ...speakerThemeVars(from.id), transformOrigin: 'center', zIndex: 1 }}
+                initial={{ scale: 1, x: 0, opacity: 1, filter: 'blur(0px)' }}
+                animate={{
+                  scale: [1, SMALL, SMALL, SMALL],
+                  x: [0, 0, dir * 116, dir * 116],
+                  opacity: [1, 1, 1, 0],
+                  filter: ['blur(0px)', 'blur(1.5px)', 'blur(1.5px)', 'blur(3px)'],
+                }}
+                transition={{ duration: DURATION, times: TIMES, ease: 'easeInOut' }}
+              >
+                <SpeakerCard speaker={from} />
+              </motion.div>
+
+              {/* TO — następny: mały prostokąt z boku → na środek (zamiana) → rośnie */}
+              <motion.div
+                className="absolute left-5 right-5 top-5"
+                style={{ ...speakerThemeVars(to.id), transformOrigin: 'center', zIndex: 2 }}
+                initial={{
+                  scale: SMALL,
+                  x: dir * 116,
+                  opacity: 0.92,
+                  filter: 'blur(1.5px)',
+                }}
+                animate={{
+                  scale: [SMALL, SMALL, SMALL, 1],
+                  x: [dir * 116, dir * 116, 0, 0],
+                  opacity: [0.92, 1, 1, 1],
+                  filter: ['blur(1.5px)', 'blur(1.5px)', 'blur(1px)', 'blur(0px)'],
+                }}
+                transition={{ duration: DURATION, times: TIMES, ease: 'easeInOut' }}
+                onAnimationComplete={onComplete}
+              >
+                <SpeakerCard speaker={to} />
+              </motion.div>
+            </>
+          )}
         </div>
       </div>
     </div>

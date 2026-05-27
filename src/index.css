@@ -17,6 +17,17 @@ body,
   margin: 0;
 }
 
+/* Akcent strony oceny — domyślnie terakotowy pomarańcz (Moncarz i pozostali).
+   Per-prelegenta nadpisywany inline (patrz src/lib/speakerTheme.ts). */
+.rating-theme {
+  --acc: #dd7a3b;
+  --acc-strong: #c5642a;
+  --acc-soft: #fbede1;
+  --acc-soft2: #fbf6ee;
+  --acc-title: #9a5a24;
+  --acc-label: #a07a4a;
+}
+
 body {
   background-color: #070a12;
   color: #f8fafc;

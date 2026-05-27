@@ -28,7 +28,7 @@ function QuestionCard({
   return (
     <ScrollReveal className="rounded-2xl border border-[#EBE3D5] bg-white/90 p-5 shadow-[0_2px_14px_rgba(28,27,31,0.05)] backdrop-blur-sm">
       <div className="flex items-start gap-3">
-        <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FBEDE1] text-[12px] font-bold text-[#C5642A]">
+        <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--acc-soft)] text-[12px] font-bold text-[var(--acc-strong)]">
           {index}
         </span>
         <h3 className="text-[16px] font-semibold leading-snug text-[#1C1B1F]">
@@ -60,7 +60,7 @@ export default function SpeakerRating({
       {/* === Pytania (przewijane) === */}
       <div className="mt-7 flex items-center gap-3">
         <span className="h-px flex-1 bg-[#E7DECF]" />
-        <span className="text-[11px] font-semibold uppercase tracking-[0.26em] text-[#A07A4A]">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.26em] text-[var(--acc-label)]">
           Oceń wystąpienie
         </span>
         <span className="h-px flex-1 bg-[#E7DECF]" />
@@ -118,7 +118,7 @@ export default function SpeakerRating({
             onChange={(e) => onChange('question', e.target.value)}
             rows={3}
             placeholder="Twoje pytanie…"
-            className="w-full resize-none rounded-xl border border-[#E7DECF] bg-white p-3.5 text-[15px] text-[#1C1B1F] placeholder:text-[#B6AE9F] focus:border-[#DD7A3B]/50 focus:outline-none focus:ring-2 focus:ring-[#DD7A3B]/20"
+            className="w-full resize-none rounded-xl border border-[#E7DECF] bg-white p-3.5 text-[15px] text-[#1C1B1F] placeholder:text-[#B6AE9F] focus:border-[color-mix(in_srgb,var(--acc)_50%,transparent)] focus:outline-none focus:ring-2 focus:ring-[color-mix(in_srgb,var(--acc)_20%,transparent)]"
           />
         </QuestionCard>
 
@@ -128,7 +128,7 @@ export default function SpeakerRating({
             onChange={(e) => onChange('notes', e.target.value)}
             rows={4}
             placeholder="Uwagi, sugestie, wrażenia…"
-            className="w-full resize-none rounded-xl border border-[#E7DECF] bg-white p-3.5 text-[15px] text-[#1C1B1F] placeholder:text-[#B6AE9F] focus:border-[#DD7A3B]/50 focus:outline-none focus:ring-2 focus:ring-[#DD7A3B]/20"
+            className="w-full resize-none rounded-xl border border-[#E7DECF] bg-white p-3.5 text-[15px] text-[#1C1B1F] placeholder:text-[#B6AE9F] focus:border-[color-mix(in_srgb,var(--acc)_50%,transparent)] focus:outline-none focus:ring-2 focus:ring-[color-mix(in_srgb,var(--acc)_20%,transparent)]"
           />
         </QuestionCard>
       </div>

@@ -24,10 +24,10 @@ export function ChipSelect({ options, value, onChange }: ChipSelectProps) {
             onClick={() => onChange(opt)}
             className={cn(
               'rounded-full border px-4 py-2.5 text-[14px] font-medium transition-all duration-200 ease-out',
-              'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#DD7A3B]/40',
+              'focus:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--acc)_40%,transparent)]',
               active
-                ? 'border-transparent bg-[#DD7A3B] text-white shadow-[0_5px_16px_-6px_rgba(221,122,59,0.6)]'
-                : 'border-[#E7DECF] bg-white text-[#6B6457] hover:-translate-y-[1px] hover:border-[#DD7A3B]/40 hover:text-[#C5642A]',
+                ? 'border-transparent bg-[var(--acc)] text-white shadow-[0_5px_16px_-6px_color-mix(in_srgb,var(--acc)_60%,transparent)]'
+                : 'border-[#E7DECF] bg-white text-[#6B6457] hover:-translate-y-[1px] hover:border-[color-mix(in_srgb,var(--acc)_40%,transparent)] hover:text-[var(--acc-strong)]',
             )}
           >
             {opt}

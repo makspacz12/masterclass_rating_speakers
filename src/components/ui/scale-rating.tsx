@@ -45,12 +45,12 @@ export function ScaleRating({
               onClick={() => onChange(n)}
               className={cn(
                 'flex h-11 flex-1 items-center justify-center rounded-xl border text-[15px] font-semibold tabular-nums transition-all duration-200 ease-out',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#DD7A3B]/40',
+                'focus:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--acc)_40%,transparent)]',
                 filled
-                  ? 'border-transparent bg-[#DD7A3B] text-white'
-                  : 'border-[#E7DECF] bg-white text-[#6B6457] hover:border-[#DD7A3B]/40',
+                  ? 'border-transparent bg-[var(--acc)] text-white'
+                  : 'border-[#E7DECF] bg-white text-[#6B6457] hover:border-[color-mix(in_srgb,var(--acc)_40%,transparent)]',
                 isEndpoint &&
-                  'z-10 scale-[1.1] shadow-[0_8px_20px_-6px_rgba(221,122,59,0.65)]',
+                  'z-10 scale-[1.1] shadow-[0_8px_20px_-6px_color-mix(in_srgb,var(--acc)_65%,transparent)]',
               )}
             >
               {n}
