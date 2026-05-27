@@ -7,6 +7,7 @@ import { emptyAnswers, type Answers } from '@/data/evaluation'
 import SpeakerRating from '@/components/SpeakerRating'
 import KrolewskiRating from '@/components/KrolewskiRating'
 import GorskiRating from '@/components/GorskiRating'
+import MoncarzRating from '@/components/MoncarzRating'
 import { SpeakerSwapStage } from '@/components/SpeakerSwapStage'
 import { speakerThemeVars } from '@/lib/speakerTheme'
 import { useQuestions } from '@/hooks/useQuestions'
@@ -66,7 +67,9 @@ export default function RatingFlow() {
   // Reszta prelegentów: jasna ścieżka poniżej.
   const isKrolewski = speaker.id === 'jaroslaw-krolewski'
   const isGorski = speaker.id === 'krzysztof-gorski'
-  const isDark = isKrolewski || isGorski
+  const isMoncarz = speaker.id === 'piotr-moncarz'
+  // Prelegenci z własnym, kompletnie odrębnym widokiem (nie używają motywu --acc).
+  const isCustom = isKrolewski || isGorski || isMoncarz
 
   return (
     <div
@@ -76,9 +79,11 @@ export default function RatingFlow() {
           ? 'bg-[#070A12]'
           : isGorski
             ? 'bg-[#05060F]'
-            : 'rating-theme bg-gradient-to-b from-[#FBF8F3] via-[#F6F0E6] to-[#F1E9DB]',
+            : isMoncarz
+              ? 'bg-[#ECEFF3]'
+              : 'rating-theme bg-gradient-to-b from-[#FBF8F3] via-[#F6F0E6] to-[#F1E9DB]',
       )}
-      style={isDark ? undefined : speakerThemeVars(speaker.id)}
+      style={isCustom ? undefined : speakerThemeVars(speaker.id)}
     >
       <div className="relative w-full max-w-[440px]">
         {isKrolewski ? (
@@ -97,6 +102,20 @@ export default function RatingFlow() {
           />
         ) : isGorski ? (
           <GorskiRating
+            speaker={speaker}
+            answers={answers}
+            onChange={update}
+            questions={questions}
+            index={index}
+            total={total}
+            isFirst={isFirst}
+            isLast={isLast}
+            onPrev={() => go(-1)}
+            onNext={() => go(1)}
+            onHome={goHome}
+          />
+        ) : isMoncarz ? (
+          <MoncarzRating
             speaker={speaker}
             answers={answers}
             onChange={update}
