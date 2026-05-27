@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background-color: #070a12;
+  color: #f8fafc;
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+}
+
+/* Loader dla Spline (fallback) */
+.loader {
+  width: 38px;
+  height: 38px;
+  border: 3px solid rgba(34, 211, 238, 0.25);
+  border-bottom-color: #22d3ee;
+  border-radius: 50%;
+  display: inline-block;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  to {
+    transform: rotate(360deg);
+  }
+}
