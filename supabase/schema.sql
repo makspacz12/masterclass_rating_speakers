@@ -13,6 +13,11 @@
 --   ankiet/pytań, a pisać — tylko własny profil i własne odpowiedzi.
 -- ============================================================================
 
+-- RESET — usuwa istniejące tabele wraz z danymi, żeby skrypt był w pełni
+-- powtarzalny (rozwiązuje błąd „relation already exists"). Przy świeżej
+-- konfiguracji bezpieczne. NIE uruchamiaj, gdy masz już prawdziwe odpowiedzi!
+drop table if exists odpowiedzi, ankieta_pytania, uzytkownicy, pytania, ankiety, prelegenci cascade;
+
 -- 1. PRELEGENCI
 create table if not exists prelegenci (
   id          bigserial primary key,
