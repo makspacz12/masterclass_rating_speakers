@@ -38,7 +38,7 @@ Autorka książek „Chińczycy trzymają nas mocno" oraz „Bóg techy. Jak wie
     name: 'Krzysztof M. Górski',
     talkTitle:
       'Jak być liderem przyszłości, który tworzy rzeczy, które dziś wydają się niemożliwe?',
-    photo: '/prelegenci/krzysztof-gorski.png',
+    photo: '/prelegenci/krzysztof-gorski.jpg',
     bio: `Astrofizyk i kosmolog, Sekretarz Generalny Akademii Kopernikańskiej. Studia astronomiczne ukończył na Uniwersytecie Mikołaja Kopernika w Toruniu, a doktorat z fizyki uzyskał na Uniwersytecie Warszawskim. Prowadził badania m.in. na UC Berkeley, w Los Alamos, w Princeton, w Institute for Advanced Study, na Uniwersytecie w Chicago, w CNRS w Paryżu oraz w Goddard Space Flight Center. Od 2003 roku pracuje w Jet Propulsion Laboratory (NASA).
 Twórca metody HEALPix — narzędzia do konstrukcji, wizualizacji i analizy map sygnału astronomicznego na całej sferze niebieskiej, wykorzystywanej w misjach takich jak WMAP, Planck, Fermi LAT i Gaia. Laureat prestiżowej Nagrody Grubera w dziedzinie kosmologii, uhonorowany tytułem „Futurysty Roku 2024".`,
   },
