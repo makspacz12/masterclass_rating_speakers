@@ -6,6 +6,7 @@ import { speakers } from '@/data/speakers'
 import { emptyAnswers, type Answers } from '@/data/evaluation'
 import SpeakerRating from '@/components/SpeakerRating'
 import KrolewskiRating from '@/components/KrolewskiRating'
+import GorskiRating from '@/components/GorskiRating'
 import { SpeakerSwapStage } from '@/components/SpeakerSwapStage'
 import { speakerThemeVars } from '@/lib/speakerTheme'
 import { cn } from '@/lib/utils'
@@ -56,9 +57,13 @@ export default function RatingFlow() {
 
   if (!speaker) return null
 
-  // Prelegent #5 (Jarosław Królewski) — całkowicie osobny, ciemny widok (motyw
-  // landingu). Reszta prelegentów: jasna ścieżka poniżej, bez żadnych zmian.
+  // Osobne, kompletnie inne widoki (pełna izolacja):
+  //  • Królewski (#5) — ciemny/złoty motyw landingu,
+  //  • Górski (#3) — ciemny „kosmiczny / obserwatorium".
+  // Reszta prelegentów: jasna ścieżka poniżej.
   const isKrolewski = speaker.id === 'jaroslaw-krolewski'
+  const isGorski = speaker.id === 'krzysztof-gorski'
+  const isDark = isKrolewski || isGorski
 
   return (
     <div
@@ -66,13 +71,28 @@ export default function RatingFlow() {
         'flex min-h-[100dvh] w-full justify-center',
         isKrolewski
           ? 'bg-[#070A12]'
-          : 'rating-theme bg-gradient-to-b from-[#FBF8F3] via-[#F6F0E6] to-[#F1E9DB]',
+          : isGorski
+            ? 'bg-[#05060F]'
+            : 'rating-theme bg-gradient-to-b from-[#FBF8F3] via-[#F6F0E6] to-[#F1E9DB]',
       )}
-      style={isKrolewski ? undefined : speakerThemeVars(speaker.id)}
+      style={isDark ? undefined : speakerThemeVars(speaker.id)}
     >
       <div className="relative w-full max-w-[440px]">
         {isKrolewski ? (
           <KrolewskiRating
+            speaker={speaker}
+            answers={answers}
+            onChange={update}
+            index={index}
+            total={total}
+            isFirst={isFirst}
+            isLast={isLast}
+            onPrev={() => go(-1)}
+            onNext={() => go(1)}
+            onHome={goHome}
+          />
+        ) : isGorski ? (
+          <GorskiRating
             speaker={speaker}
             answers={answers}
             onChange={update}
