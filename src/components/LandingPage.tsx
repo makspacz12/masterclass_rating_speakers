@@ -43,7 +43,7 @@ export default function LandingPage() {
             tak aby tytuł znalazł się NAD nim, a robot nie wychodził poza kadr */}
         <div
           ref={stageRef}
-          className="absolute inset-x-0 bottom-0 top-[16%] z-10"
+          className="absolute inset-x-0 bottom-0 top-[16%] z-10 translate-y-[2%] scale-[0.95]"
         >
           <SplineScene
             scene={ROBOT_SCENE}
@@ -84,7 +84,7 @@ export default function LandingPage() {
             className="mt-4 flex items-center gap-3"
           >
             <span className="h-px w-8 bg-gradient-to-r from-transparent to-[#C9A14A]/60" />
-            <span className="font-serif text-[15px] italic tracking-wide text-[#E2D2A6]/90">
+            <span className="font-display text-[17px] font-medium tracking-[0.06em] text-[#E2D2A6]/90">
               Ocena prelegentów
             </span>
             <span className="h-px w-8 bg-gradient-to-l from-transparent to-[#C9A14A]/60" />
@@ -97,22 +97,28 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="grid grid-cols-2 gap-3"
           >
-            <ActionButton
-              variant="gold"
-              label="Doświadczony Lider"
-              onClick={() => {
-                window.location.hash = '/ocena'
-              }}
-            />
-            <ActionButton
-              variant="platinum"
-              label="Młody Talent"
-              onClick={() => {
-                window.location.hash = '/ocena'
-              }}
-            />
+            <p className="mb-3 text-center text-[10px] font-medium uppercase tracking-[0.28em] text-slate-400/75">
+              Kim jesteś? Wybierz, aby zacząć ocenę
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <ActionButton
+                variant="gold"
+                label="Doświadczony Lider"
+                sublabel="Z doświadczeniem i dorobkiem"
+                onClick={() => {
+                  window.location.hash = '/ocena'
+                }}
+              />
+              <ActionButton
+                variant="platinum"
+                label="Młody Talent"
+                sublabel="Na początku swojej drogi"
+                onClick={() => {
+                  window.location.hash = '/ocena'
+                }}
+              />
+            </div>
           </motion.div>
         </div>
       </div>

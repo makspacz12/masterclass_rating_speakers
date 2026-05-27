@@ -7,6 +7,8 @@ interface ActionButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant: Variant
   label: string
+  /** krótki opis pod etykietą („kim jesteś") — pomaga wybrać właściwy przycisk */
+  sublabel?: string
 }
 
 const variants: Record<
@@ -50,14 +52,14 @@ const variants: Record<
 export const ActionButton = React.forwardRef<
   HTMLButtonElement,
   ActionButtonProps
->(({ variant, label, className, ...props }, ref) => {
+>(({ variant, label, sublabel, className, ...props }, ref) => {
   const v = variants[variant]
   return (
     <button
       ref={ref}
       type="button"
       className={cn(
-        'group relative isolate flex h-[58px] w-full items-center justify-center overflow-hidden rounded-[14px] border bg-white/[0.025] backdrop-blur-md',
+        'group relative isolate flex min-h-[66px] w-full items-center justify-center overflow-hidden rounded-[14px] border bg-white/[0.025] px-2 py-2.5 backdrop-blur-md',
         'transition-[transform,box-shadow,border-color] duration-300 ease-out will-change-transform',
         'hover:-translate-y-[3px] active:translate-y-0 active:scale-[0.975] active:duration-100',
         'active:shadow-[inset_0_2px_14px_rgba(0,0,0,0.5)]',
@@ -86,12 +88,19 @@ export const ActionButton = React.forwardRef<
       />
       <span
         className={cn(
-          'relative z-10 font-display text-[14px] font-semibold uppercase leading-none tracking-[0.13em] transition-colors duration-300',
+          'relative z-10 flex flex-col items-center gap-1 text-center transition-colors duration-300',
           v.text,
           v.hoverText,
         )}
       >
-        {label}
+        <span className="font-display text-[14px] font-semibold uppercase leading-none tracking-[0.13em]">
+          {label}
+        </span>
+        {sublabel && (
+          <span className="text-[9.5px] font-normal normal-case leading-tight tracking-[0.02em] opacity-75">
+            {sublabel}
+          </span>
+        )}
       </span>
     </button>
   )

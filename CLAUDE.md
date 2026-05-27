@@ -21,6 +21,23 @@ historia była granularna. Krótkie, rzeczowe komunikaty po polsku.
 Standardowy cykl: `git add -A` → `git commit -m "..."` → `git push`. Build
 (`npm run build`) to bramka jakości — najlepiej przejść go przed commitem.
 
+## TWARDE ZASADY (bezwzględne — od użytkownika)
+
+Te reguły są nadrzędne. Złamanie ich jest **całkowicie zabronione**.
+
+1. **Animacje przejść między prelegentami — izolacja.** Gdy użytkownik prosi o zmianę
+   animacji konkretnego przejścia (np. „przejście 2→3"), zmieniaj **wyłącznie** tę
+   jedną animację. Wszystkie pozostałe przejścia (np. 1→2, 3→4) zostaw **nietknięte**.
+   Każde przejście ma być **inne** — docelowo animacja jest dobierana per para indeksów
+   (np. mapowanie `from→to` w `SpeakerSwapStage`/`RatingFlow`), nie jedna wspólna dla
+   wszystkich. Nigdy nie „przy okazji" nie modyfikuj innych przejść.
+
+2. **Styl per prelegent — izolacja.** Gdy użytkownik prosi o zmianę stylu danego
+   prelegenta, zmieniaj go **tylko dla tego jednego** prelegenta. Nie przenoś tej zmiany
+   na pozostałych. Styl ma móc różnić się między prelegentami.
+
+Zasada ogólna: zmieniaj dokładnie to, o co proszono, i nic poza tym.
+
 ## Komendy
 
 ```bash
