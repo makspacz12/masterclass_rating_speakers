@@ -99,13 +99,12 @@ export default function LandingPage() {
             transition={{ duration: 0.8, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
           >
             <p className="mb-3 text-center text-[10px] font-medium uppercase tracking-[0.28em] text-slate-400/75">
-              Kim jesteś? Wybierz, aby zacząć ocenę
+              Kim jesteś? Wybierz opcję, aby zacząć ocenę
             </p>
             <div className="grid grid-cols-2 gap-3">
               <ActionButton
                 variant="gold"
                 label="Doświadczony Lider"
-                sublabel="Z doświadczeniem i dorobkiem"
                 onClick={() => {
                   window.location.hash = '/ocena'
                 }}
@@ -113,7 +112,6 @@ export default function LandingPage() {
               <ActionButton
                 variant="platinum"
                 label="Młody Talent"
-                sublabel="Na początku swojej drogi"
                 onClick={() => {
                   window.location.hash = '/ocena'
                 }}
