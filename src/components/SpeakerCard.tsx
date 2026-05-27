@@ -27,6 +27,7 @@ export function SpeakerCard({ speaker, bio }: SpeakerCardProps) {
   const open = bio?.open ?? false
   const isCzubkowska = speaker.id === 'sylwia-czubkowska'
   const isBralczyk = speaker.id === 'jerzy-bralczyk'
+  const isGorski = speaker.id === 'krzysztof-gorski'
   const roleLabel = isCzubkowska ? 'Prelegentka' : 'Prelegent'
 
   return (
@@ -42,27 +43,30 @@ export function SpeakerCard({ speaker, bio }: SpeakerCardProps) {
       </div>
 
       <div className="p-5">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--acc-strong)]">
+        <p className="font-[family-name:var(--f-ui)] text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--acc-strong)]">
           {roleLabel}
         </p>
-        <h1 className="mt-1.5 font-display text-[26px] font-extrabold leading-tight text-[#1C1B1F]">
+        <h1 className="mt-1.5 font-[family-name:var(--f-name)] text-[26px] font-extrabold leading-tight text-[#1C1B1F]">
           {speaker.name}
         </h1>
 
         <div className="mt-3 rounded-xl bg-[var(--acc-soft2)] p-3.5">
-          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[var(--acc-label)]">
+          <p className="font-[family-name:var(--f-ui)] text-[10px] font-medium uppercase tracking-[0.2em] text-[var(--acc-label)]">
             Tytuł wystąpienia
           </p>
           <p
             className={cn(
               'mt-1 leading-snug text-[var(--acc-title)]',
               isCzubkowska
-                ? // nowoczesny display, bez kursywy
-                  'font-display text-[19px] font-semibold tracking-[-0.015em]'
+                ? // nowoczesny grotesk, bez kursywy
+                  'font-grotesk text-[19px] font-semibold tracking-[-0.015em]'
                 : isBralczyk
-                  ? // klasyczna, „literacka" zasada serif (większa, bez kursywy)
+                  ? // klasyczny serif (Cormorant) — inny niż serifowe imię (DM Serif)
                     'font-serif text-[22px] font-medium not-italic leading-[1.15]'
-                  : 'font-serif text-[18px] italic',
+                  : isGorski
+                    ? // techniczny grotesk
+                      'font-grotesk text-[19px] font-semibold tracking-[-0.01em]'
+                    : 'font-serif text-[18px] italic',
             )}
           >
             {speaker.talkTitle}
@@ -132,8 +136,8 @@ export function SpeakerCard({ speaker, bio }: SpeakerCardProps) {
                     <p
                       key={i}
                       className={cn(
-                        'leading-relaxed text-[#56514A]',
-                        isBralczyk ? 'font-serif text-[16.5px]' : 'text-[14px]',
+                        'font-[family-name:var(--f-body)] leading-relaxed text-[#56514A]',
+                        isBralczyk ? 'text-[16.5px]' : 'text-[14px]',
                       )}
                     >
                       {para}
@@ -195,10 +199,10 @@ export function SpeakerCard({ speaker, bio }: SpeakerCardProps) {
                       <X className="h-5 w-5" />
                     </button>
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent px-5 pb-4 pt-12">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[color-mix(in_srgb,var(--acc)_70%,white)]">
+                      <p className="font-[family-name:var(--f-ui)] text-[10px] font-semibold uppercase tracking-[0.3em] text-[color-mix(in_srgb,var(--acc)_70%,white)]">
                         Prelegentka
                       </p>
-                      <h2 className="mt-0.5 font-display text-[23px] font-extrabold leading-tight text-white">
+                      <h2 className="mt-0.5 font-[family-name:var(--f-name)] text-[26px] font-extrabold leading-tight text-white">
                         {speaker.name}
                       </h2>
                     </div>
@@ -209,7 +213,7 @@ export function SpeakerCard({ speaker, bio }: SpeakerCardProps) {
                     {speaker.bio.split('\n').map((para, i) => (
                       <p
                         key={i}
-                        className="text-[14.5px] leading-relaxed text-[#56514A]"
+                        className="font-[family-name:var(--f-body)] text-[14.5px] leading-relaxed text-[#56514A]"
                       >
                         {para}
                       </p>

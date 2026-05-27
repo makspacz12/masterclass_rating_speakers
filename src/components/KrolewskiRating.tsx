@@ -119,7 +119,7 @@ export default function KrolewskiRating({
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.22, ease: EASE }}
-              className="mt-2 font-display text-[34px] font-extrabold leading-[1.04] tracking-[-0.02em] text-white"
+              className="mt-2 font-grotesk text-[34px] font-bold leading-[1.04] tracking-[-0.02em] text-white"
             >
               {speaker.name}
             </motion.h1>

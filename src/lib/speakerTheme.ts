@@ -38,6 +38,9 @@ const THEMES: Record<string, Record<string, string>> = {
     '--acc-soft2': '#FBF4E2',
     '--acc-title': '#8A6A1E',
     '--acc-label': '#9C8345',
+    '--f-name': '"DM Serif Display", Georgia, serif',
+    '--f-ui': '"Cormorant Garamond", Georgia, serif',
+    '--f-body': '"Cormorant Garamond", Georgia, serif',
   },
 }
 
