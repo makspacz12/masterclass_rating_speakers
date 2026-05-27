@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Home, ArrowRight, Plus } from 'lucide-react'
 import type { Speaker } from '@/data/speakers'
@@ -335,48 +335,94 @@ function GoldScale({
   onChange: (v: number | null) => void
 }) {
   const [hover, setHover] = useState<number | null>(null)
+  const rowRef = useRef<HTMLDivElement>(null)
+  const draggingRef = useRef(false)
+  const movedRef = useRef(false)
+  const downValueRef = useRef<number | null>(null)
   const reference = hover ?? value ?? 0
   const endpoint = hover ?? value
   const items = Array.from({ length: 10 }, (_, i) => i + 1)
+
+  // Wartość spod wskaźnika (X) — pozwala oceniać przeciągnięciem palca/myszy.
+  const valueFromX = (clientX: number): number | null => {
+    const el = rowRef.current
+    if (!el) return null
+    const rect = el.getBoundingClientRect()
+    const ratio = (clientX - rect.left) / rect.width
+    return Math.min(10, Math.max(1, Math.ceil(ratio * 10)))
+  }
+
+  const handleDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    const n = valueFromX(e.clientX)
+    if (n == null) return
+    draggingRef.current = true
+    movedRef.current = false
+    downValueRef.current = value
+    e.currentTarget.setPointerCapture(e.pointerId)
+    setHover(n)
+    onChange(n)
+  }
+  const handleMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!draggingRef.current) return
+    const n = valueFromX(e.clientX)
+    if (n == null) return
+    movedRef.current = true
+    setHover(n)
+    if (n !== value) onChange(n)
+  }
+  const handleUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!draggingRef.current) return
+    draggingRef.current = false
+    const n = valueFromX(e.clientX)
+    setHover(null)
+    // czysty tap w już wybraną wartość = odznacz
+    if (!movedRef.current && n != null && n === downValueRef.current) {
+      onChange(null)
+    }
+  }
 
   return (
     <div>
       <div className="mb-3 flex items-end justify-between">
         <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-platinum/50">
-          ocena
+          przeciągnij lub dotknij
         </span>
         <span className="font-display text-[28px] font-extrabold leading-none text-gold-light tabular-nums">
           {value ?? '—'}
           <span className="text-[14px] text-platinum/40">/10</span>
         </span>
       </div>
-      <div className="flex items-stretch gap-[5px]" onMouseLeave={() => setHover(null)}>
+      {/* Pasek skali — obsługa przeciągania (pointer) + dotyk; touch-none, by
+          przeciąganie w poziomie nie scrollowało strony. */}
+      <div
+        ref={rowRef}
+        onPointerDown={handleDown}
+        onPointerMove={handleMove}
+        onPointerUp={handleUp}
+        onPointerCancel={handleUp}
+        className="flex touch-none select-none items-stretch gap-[5px]"
+      >
         {items.map((n) => {
           const filled = n <= reference
           const isEndpoint = n === endpoint
           return (
-            <motion.button
+            <motion.div
               key={n}
-              type="button"
-              onMouseEnter={() => setHover(n)}
-              onFocus={() => setHover(n)}
-              onClick={() => onChange(n === value ? null : n)}
-              whileTap={{ scale: 0.86 }}
+              aria-hidden
               animate={{ scale: isEndpoint ? 1.14 : 1 }}
               transition={{ type: 'spring', stiffness: 460, damping: 17 }}
               className={cn(
-                'h-11 flex-1 rounded-md border text-[14px] font-semibold tabular-nums transition-colors duration-200',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40',
+                'flex h-11 flex-1 items-center justify-center rounded-md border text-[14px] font-semibold tabular-nums transition-colors duration-200',
                 filled
                   ? 'border-transparent bg-gradient-to-b from-gold-light to-gold text-[#1a1407]'
-                  : 'border-white/10 bg-white/[0.03] text-platinum/55 hover:border-gold/40',
+                  : 'border-white/10 bg-white/[0.03] text-platinum/55',
                 isEndpoint &&
                   filled &&
                   'z-10 shadow-[0_0_18px_2px_rgba(201,161,74,0.55)]',
               )}
             >
               {n}
-            </motion.button>
+            </motion.div>
           )
         })}
       </div>
