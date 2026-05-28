@@ -1,7 +1,7 @@
 'use client'
 
-import { useRef } from 'react'
-import { motion } from 'framer-motion'
+import { useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { SplineScene } from '@/components/ui/splite'
 import { Spotlight } from '@/components/ui/spotlight'
 import { BackgroundPaths } from '@/components/ui/background-paths'
@@ -14,6 +14,11 @@ const ROBOT_SCENE =
 export default function LandingPage() {
   const stageRef = useRef<HTMLDivElement>(null)
   const { isTouch, state: tiltState, enableGyro } = useTiltControl(stageRef)
+  // gdy user wybierze „Później" — nie pokazuj okienka aż do reloadu (a i tak
+  // dostanie pigułkę „Aktywuj przechylanie" przy przyciskach).
+  const [permissionDismissed, setPermissionDismissed] = useState(false)
+  const showPermissionSheet =
+    isTouch && tiltState === 'idle' && !permissionDismissed
 
   // komunikaty per stan — diagnostyka dla użytkownika (głównie iPhone)
   const tiltMsg: Record<string, string> = {
@@ -149,6 +154,59 @@ export default function LandingPage() {
             </div>
           </motion.div>
         </div>
+
+        {/* Wysuwana z dołu prośba o zgodę na żyroskop (iPhone, stan 'idle') */}
+        <AnimatePresence>
+          {showPermissionSheet && (
+            <motion.div
+              key="gyro-permission"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="absolute inset-0 z-40 flex items-end"
+            >
+              <motion.button
+                type="button"
+                aria-label="Zamknij"
+                onClick={() => setPermissionDismissed(true)}
+                className="absolute inset-0 cursor-default bg-black/60 backdrop-blur-sm"
+              />
+              <motion.div
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: 'spring', damping: 32, stiffness: 280 }}
+                className="relative w-full overflow-hidden rounded-t-3xl border-t border-white/10 bg-[#0E1322] px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-3"
+              >
+                <span className="mx-auto mb-4 block h-1 w-10 rounded-full bg-white/20" />
+                <h3 className="text-center font-display text-[18px] font-bold text-white">
+                  Włącz przechylanie telefonu
+                </h3>
+                <p className="mt-2 text-center text-[13px] leading-relaxed text-slate-300/80">
+                  Robot 3D będzie reagował na przechył telefonu. Potrzebujemy
+                  zgody na czujnik ruchu i orientacji.
+                </p>
+                <div className="mt-5 flex flex-col gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => void enableGyro()}
+                    className="h-12 rounded-xl bg-gradient-to-b from-[#E6C77E] via-[#D4AD5C] to-[#C9A14A] text-[14px] font-semibold uppercase tracking-[0.12em] text-[#17110A] transition-transform active:scale-[0.98]"
+                  >
+                    Zezwól
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPermissionDismissed(true)}
+                    className="h-10 rounded-xl border border-white/10 bg-transparent text-[12px] uppercase tracking-[0.18em] text-slate-300/70 transition-colors hover:bg-white/[0.04]"
+                  >
+                    Później
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   )
