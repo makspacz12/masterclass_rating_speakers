@@ -8,6 +8,7 @@ import SpeakerRating from '@/components/SpeakerRating'
 import KrolewskiRating from '@/components/KrolewskiRating'
 import GorskiRating from '@/components/GorskiRating'
 import MoncarzRating from '@/components/MoncarzRating'
+import CzubkowskaRating from '@/components/CzubkowskaRating'
 import { SpeakerSwapStage } from '@/components/SpeakerSwapStage'
 import { speakerThemeVars } from '@/lib/speakerTheme'
 import { useQuestions } from '@/hooks/useQuestions'
@@ -68,8 +69,9 @@ export default function RatingFlow() {
   const isKrolewski = speaker.id === 'jaroslaw-krolewski'
   const isGorski = speaker.id === 'krzysztof-gorski'
   const isMoncarz = speaker.id === 'piotr-moncarz'
+  const isCzubkowska = speaker.id === 'sylwia-czubkowska'
   // Prelegenci z własnym, kompletnie odrębnym widokiem (nie używają motywu --acc).
-  const isCustom = isKrolewski || isGorski || isMoncarz
+  const isCustom = isKrolewski || isGorski || isMoncarz || isCzubkowska
 
   return (
     <div
@@ -81,7 +83,9 @@ export default function RatingFlow() {
             ? 'bg-[#05060F]'
             : isMoncarz
               ? 'bg-[#ECEFF3]'
-              : 'rating-theme bg-gradient-to-b from-[#FBF8F3] via-[#F6F0E6] to-[#F1E9DB]',
+              : isCzubkowska
+                ? 'bg-[#FAF4EA]'
+                : 'rating-theme bg-gradient-to-b from-[#FBF8F3] via-[#F6F0E6] to-[#F1E9DB]',
       )}
       style={isCustom ? undefined : speakerThemeVars(speaker.id)}
     >
@@ -116,6 +120,20 @@ export default function RatingFlow() {
           />
         ) : isMoncarz ? (
           <MoncarzRating
+            speaker={speaker}
+            answers={answers}
+            onChange={update}
+            questions={questions}
+            index={index}
+            total={total}
+            isFirst={isFirst}
+            isLast={isLast}
+            onPrev={() => go(-1)}
+            onNext={() => go(1)}
+            onHome={goHome}
+          />
+        ) : isCzubkowska ? (
+          <CzubkowskaRating
             speaker={speaker}
             answers={answers}
             onChange={update}

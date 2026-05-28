@@ -6,10 +6,21 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseAnonKey) {
+/**
+ * WAŻNE: gdy env-vary nie są ustawione (np. brak konfiguracji na Vercelu),
+ * `createClient(undefined, undefined)` RZUCA błąd przy imporcie — co psuje
+ * cały bundle (też landing). Dlatego podstawiamy poprawne formalnie placeholdery
+ * tak, by import nie wybuchł; rzeczywiste zapytania i tak zwrócą błąd (do
+ * obsłużenia w `useQuestions` itp.). Konsola dostaje jasny komunikat.
+ */
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey)
+if (!isSupabaseConfigured) {
   console.warn(
-    '[supabase] Brak konfiguracji — ustaw VITE_SUPABASE_URL i VITE_SUPABASE_ANON_KEY w .env.local',
+    '[supabase] Brak VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY — używam placeholderów. Ustaw zmienne w .env.local (lokalnie) lub w panelu Vercel → Project Settings → Environment Variables.',
   )
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'sb_publishable_placeholder',
+)
