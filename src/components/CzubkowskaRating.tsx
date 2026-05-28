@@ -3,7 +3,7 @@
 import { createPortal } from 'react-dom'
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Home, ArrowRight, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Home, ArrowRight, X, ListOrdered } from 'lucide-react'
 import type { Speaker } from '@/data/speakers'
 import type { Answers, Audience } from '@/data/evaluation'
 import { AUDIENCES } from '@/data/evaluation'
@@ -84,10 +84,10 @@ export default function CzubkowskaRating({
           <button
             type="button"
             onClick={() => setMenuOpen(true)}
-            className="mt-0.5 inline-flex items-center gap-1 font-grotesk text-[9.5px] font-bold uppercase tracking-[0.32em] text-[#A8336B] transition-colors hover:underline"
+            className="mt-1 inline-flex items-center gap-2 border-2 border-[#1A1A1A] bg-[#A8336B] px-3 py-1 font-grotesk text-[10px] font-bold uppercase tracking-[0.22em] text-white transition-colors hover:bg-[#1A1A1A]"
           >
-            Spis № {pad(index + 1)} / {pad(total)}
-            <span aria-hidden>▾</span>
+            <ListOrdered className="h-3.5 w-3.5" />
+            Spis № {pad(index + 1)}/{pad(total)}
           </button>
         </div>
         <PressNav onClick={onNext} disabled={isLast} ariaLabel="Następny">

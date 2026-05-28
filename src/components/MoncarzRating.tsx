@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Home, ArrowRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Home, ArrowRight, LayoutGrid } from 'lucide-react'
 import type { Speaker } from '@/data/speakers'
 import type { Answers, Audience } from '@/data/evaluation'
 import { AUDIENCES } from '@/data/evaluation'
@@ -88,10 +88,10 @@ export default function MoncarzRating({
           <button
             type="button"
             onClick={() => setMenuOpen(true)}
-            className="mt-0.5 inline-flex items-center gap-1 font-spacemono text-[10px] tracking-[0.2em] text-[#0F766E] transition-colors hover:underline"
+            className="mt-1 inline-flex items-center gap-2 border-2 border-[#0F766E] bg-white px-3 py-1 font-spacemono text-[10px] font-bold uppercase tracking-[0.16em] text-[#0F766E] transition-colors hover:bg-[#0F766E] hover:text-white"
           >
-            PROFIL {pad(index + 1)}/{pad(total)}
-            <span aria-hidden>▾</span>
+            <LayoutGrid className="h-3.5 w-3.5" />
+            Wszyscy · {pad(index + 1)}/{pad(total)}
           </button>
         </div>
         <TechNav onClick={onNext} disabled={isLast} ariaLabel="Następny prelegent">

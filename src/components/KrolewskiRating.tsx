@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Home, ArrowRight, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Home, ArrowRight, Plus, LayoutGrid } from 'lucide-react'
 import type { Speaker } from '@/data/speakers'
 import type { Answers, Audience } from '@/data/evaluation'
 import { AUDIENCES } from '@/data/evaluation'
@@ -87,10 +87,10 @@ export default function KrolewskiRating({
           <button
             type="button"
             onClick={() => setMenuOpen(true)}
-            className="mt-0.5 inline-flex items-center gap-1 text-[11px] tabular-nums tracking-[0.18em] text-gold-light transition-colors hover:underline"
+            className="mt-1 inline-flex items-center gap-2 rounded-full border border-gold/50 bg-gold/[0.1] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-gold-light shadow-[0_0_16px_-6px_rgba(201,161,74,0.7)] transition-colors hover:border-gold hover:bg-gold/20"
           >
-            № {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
-            <span aria-hidden>▾</span>
+            <LayoutGrid className="h-3.5 w-3.5" />
+            Galeria · {String(index + 1).padStart(2, '0')}/{String(total).padStart(2, '0')}
           </button>
         </div>
 

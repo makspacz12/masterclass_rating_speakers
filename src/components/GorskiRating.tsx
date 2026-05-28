@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Home, ArrowRight, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Home, ArrowRight, Plus, Compass } from 'lucide-react'
 import type { Speaker } from '@/data/speakers'
 import type { Answers, Audience } from '@/data/evaluation'
 import { AUDIENCES } from '@/data/evaluation'
@@ -93,10 +93,10 @@ export default function GorskiRating({
           <button
             type="button"
             onClick={() => setMenuOpen(true)}
-            className="mt-0.5 inline-flex items-center gap-1 text-[10px] tracking-[0.3em] text-[#8E8CFF] transition-colors hover:underline"
+            className="mt-1 inline-flex items-center gap-2 rounded-full border border-[#8E8CFF]/60 bg-[#8E8CFF]/10 px-3 py-1 font-spacemono text-[10px] font-bold uppercase tracking-[0.18em] text-[#B7B5FF] shadow-[0_0_18px_-6px_rgba(142,140,255,0.6)] transition-colors hover:border-[#8E8CFF] hover:bg-[#8E8CFF]/20"
           >
-            OBJ {pad(index + 1)} / {pad(total)}
-            <span aria-hidden>▾</span>
+            <Compass className="h-3.5 w-3.5" />
+            Obs · {pad(index + 1)}/{pad(total)}
           </button>
         </div>
         <OrbitNav onClick={onNext} disabled={isLast} ariaLabel="Następny prelegent">

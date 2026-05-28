@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, Home, ArrowRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Home, ArrowRight, Users } from 'lucide-react'
 import { speakers } from '@/data/speakers'
 import { emptyAnswers, type Answers } from '@/data/evaluation'
 import SpeakerRating from '@/components/SpeakerRating'
@@ -200,10 +200,10 @@ export default function RatingFlow() {
               <button
                 type="button"
                 onClick={() => setRosterOpen(true)}
-                className="mt-0.5 inline-flex items-center gap-1 text-[11px] tabular-nums text-[var(--acc-strong)] transition-colors hover:underline"
+                className="mt-1 inline-flex items-center gap-2 rounded-full border border-[var(--acc-strong)]/50 bg-white px-3 py-1 font-serif text-[13px] italic text-[var(--acc-strong)] shadow-[0_2px_8px_-2px_color-mix(in_srgb,var(--acc)_30%,transparent)] transition-colors hover:border-[var(--acc-strong)] hover:bg-[var(--acc-soft)]"
               >
-                Prelegent {index + 1} / {total}
-                <span aria-hidden>▾</span>
+                <Users className="h-3.5 w-3.5" />
+                Lista gości · {index + 1}/{total}
               </button>
             </div>
 
