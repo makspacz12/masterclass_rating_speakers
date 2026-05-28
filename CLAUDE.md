@@ -92,9 +92,25 @@ z0 gradienty → z1 `BackgroundPaths` + `Spotlight` → **z10 robot Spline** →
 - **Robot 3D** (`components/ui/splite.tsx`, scena Spline `kZDDjO5HuC9GJUM2`):
   - Desktop/mysz → śledzenie wbudowane w scenę, nic nie kodujemy.
   - Telefon/żyroskop → `src/hooks/useTiltControl.ts` czyta `deviceorientation` i
-    **syntetyzuje `pointermove`/`mousemove` na `<canvas>`**. iOS wymaga zgody z gestu
-    (`enableGyro()` w `onPointerDown` ramki). Żyroskop działa tylko w bezpiecznym
-    kontekście (HTTPS/localhost) — test po LAN-owym `http://` go nie ruszy (użyj tunelu).
+    **syntetyzuje `pointermove`/`mousemove` na `<canvas>`**. Hook zwraca `state`
+    (`unsupported` | `insecure-context` | `idle` | `awaiting-permission` |
+    `permission-denied` | `awaiting-events` | `no-events` | `active`) — landing
+    wyświetla na jego podstawie pigułkę z diagnostyką. iOS wymaga zgody Z GESTU
+    (`enableGyro()` na pierwszy dotyk / pigułka „Aktywuj przechylanie"); prosi
+    równolegle o zgodę dla `DeviceOrientationEvent` ORAZ `DeviceMotionEvent`.
+
+    **„Nie działa na iPhonie" — kolejność przyczyn (od najczęstszej):**
+    1. **Brak HTTPS** — iOS Safari w kontekście nie-bezpiecznym (`http://192.168.x.x:5188`)
+       nie udostępnia sensorów. Test na telefonie wymaga HTTPS:
+       `cloudflared tunnel --url http://localhost:5188` albo `ngrok http 5188`,
+       potem otwórz wygenerowany URL `https://...` na iPhonie.
+    2. **Brak zgody** — ekran pokaże „Brak zgody — Ustawienia → Safari → Ruch i orientacja";
+       w iOS trzeba zresetować zgodę dla strony (lub odinstalować/zainstalować Safari).
+    3. **Ustawienia iOS** — Ustawienia → Safari → „Ruch i orientacja" musi być WŁ.
+    4. **WebView w innej apce** (np. otwarcie linka z Messengera) — często blokuje sensory;
+       testuj w „natywnym" Safari.
+    5. **Sensor nie startuje** — po 2.2 s bez zdarzeń hook ustawia `no-events`;
+       pigułka informuje, najczęściej pomaga odświeżenie strony.
   - Rozmiar/pozycja = `scale-[0.75]` + `translate-y-[7%]` na wrapperze.
 - **Krytyczne:** nakładki nad canvasem muszą mieć `pointer-events-none` (poza
   przyciskami), inaczej robot przestaje śledzić kursor.

@@ -3,26 +3,39 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 /**
  * useTiltControl
  * ---------------
- * Sprawia, że robot Spline „śledzi" użytkownika:
- *  • Desktop / urządzenia z myszą  → ruch kursora obsługuje wbudowane zachowanie
- *    sceny Spline (Look At Pointer). Nie musimy nic robić.
- *  • Telefon / tablet (żyroskop)   → odczytujemy przechylenie urządzenia
- *    (deviceorientation: gamma = lewo/prawo, beta = przód/tył) i syntetyzujemy
- *    zdarzenia `pointermove` na <canvas> sceny, dzięki czemu robot reaguje na
- *    pochylanie telefonu dokładnie tak, jak reagowałby na mysz.
+ * Robot Spline „śledzi" użytkownika:
+ *  • Desktop (mysz) — wbudowane zachowanie Spline (Look At Pointer); nie ruszamy.
+ *  • Telefon (żyroskop) — odczytujemy `deviceorientation` i syntetyzujemy
+ *    `pointermove` na <canvas> sceny. iOS 13+ wymaga zgody (z gestu) — patrz `enableGyro()`.
  *
- * iOS 13+ wymaga zgody użytkownika (DeviceOrientationEvent.requestPermission),
- * którą trzeba wywołać w odpowiedzi na gest — stąd funkcja `enableGyro()`.
+ * DLACZEGO „nie działa na iPhonie" — częste przyczyny (najczęstsza pierwsza):
+ *  1) BRAK HTTPS / nie-localhost — iOS Safari blokuje sensory w niebezpiecznym
+ *     kontekście. Adres `http://192.168.x.x:5188` ZAWSZE jest blokowany; wystaw
+ *     dev-serwer przez tunel HTTPS (np. cloudflared / ngrok) i otwieraj ten URL.
+ *  2) Brak zgody — pierwsza interakcja użytkownika MUSI wywołać
+ *     `DeviceOrientationEvent.requestPermission()` (oraz `DeviceMotionEvent`).
+ *     Jeśli wcześniej odmówiono — trzeba zresetować w Ustawieniach Safari.
+ *  3) Ustawienia iOS — Ustawienia → Safari → „Ruch i orientacja" musi być WŁ.
+ *  4) Tryb niskiego zużycia / wbudowany WebView (np. w innej aplikacji) — sensory
+ *     bywają wyłączone; testuj w „natywnym" Safari.
  *
- * KLUCZOWE poprawki (żeby „w ogóle nie działa" przestało się zdarzać):
- *  • Auto-kalibracja: punkt neutralny bierzemy z PIERWSZEGO odczytu, czyli z tego,
- *    jak telefon jest faktycznie trzymany. Wcześniej sztywne `beta = 45°` powodowało,
- *    że przy normalnym (pionowym) chwycie robot był od razu „przyklejony" do skraju.
- *  • Fallback na `deviceorientationabsolute` — część urządzeń (gł. Android) nie
- *    emituje `deviceorientation`, tylko wariant absolutny.
+ * Stan `state` upubliczniony, by UI mógł pokazać konkretny komunikat zamiast „nic".
  */
 
-type IOSDeviceOrientationEvent = typeof DeviceOrientationEvent & {
+export type TiltState =
+  | 'unsupported' // brak czujników / urządzenie nie-touch
+  | 'insecure-context' // touch + requestPermission istnieje, ale strona przez HTTP → API zablokowane
+  | 'idle' // touch (iOS), czeka na gest użytkownika
+  | 'awaiting-permission' // wywołano requestPermission, czekamy
+  | 'permission-denied' // użytkownik odmówił (lub odmowa systemowa)
+  | 'awaiting-events' // mamy zgodę / Android — czekamy na pierwszy odczyt
+  | 'active' // dane lecą, robot się rusza
+  | 'no-events' // zgoda jest, ale po ~2 s żadnych zdarzeń (sensor wyłączony lub blokada)
+
+type IOSOrientation = typeof DeviceOrientationEvent & {
+  requestPermission?: () => Promise<'granted' | 'denied'>
+}
+type IOSMotion = typeof DeviceMotionEvent & {
   requestPermission?: () => Promise<'granted' | 'denied'>
 }
 
@@ -38,67 +51,50 @@ function isTouchDevice() {
 const clamp = (v: number, min: number, max: number) =>
   Math.min(max, Math.max(min, v))
 
-export function useTiltControl(
-  containerRef: React.RefObject<HTMLElement>,
-) {
+export function useTiltControl(containerRef: React.RefObject<HTMLElement>) {
   const [isTouch, setIsTouch] = useState(false)
-  const [gyroActive, setGyroActive] = useState(false)
+  const [state, setState] = useState<TiltState>('unsupported')
 
-  // cel (z żyroskopu) oraz aktualnie animowana pozycja kursora
   const target = useRef({ x: 0.5, y: 0.5 })
   const current = useRef({ x: 0.5, y: 0.5 })
   const rafRef = useRef<number | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const listeningRef = useRef(false)
+  const baselineRef = useRef<{ gamma: number; beta: number } | null>(null)
+  const lastEventAtRef = useRef<number>(0)
+  const noEventTimerRef = useRef<number | null>(null)
 
-  // punkt neutralny ustalony przy pierwszym odczycie (auto-kalibracja chwytu)
-  const baseline = useRef<{ gamma: number; beta: number } | null>(null)
-
-  useEffect(() => {
-    setIsTouch(isTouchDevice())
-  }, [])
-
-  // Zakres przechylenia (w stopniach) odwzorowany na pełną szerokość/wysokość,
-  // liczony jako odchylenie od punktu neutralnego (a nie od sztywnych 45°).
+  // ----- handler żyroskopu (zawsze "świeży" przez setState funkcyjny) ---------
   const handleOrientation = useCallback((e: DeviceOrientationEvent) => {
-    // niektóre urządzenia emitują zdarzenie z nullami zanim sensor się rozgrzeje
     if (e.gamma == null && e.beta == null) return
-
-    const gamma = e.gamma ?? 0 // -90..90  (lewo / prawo)
-    const beta = e.beta ?? 0 // -180..180 (przód / tył)
-
-    // pierwszy sensowny odczyt = punkt neutralny (tak, jak trzymasz telefon teraz)
-    if (!baseline.current) {
-      baseline.current = { gamma, beta }
-      setGyroActive(true)
-    }
-
+    const gamma = e.gamma ?? 0 // -90..90 (lewo/prawo)
+    const beta = e.beta ?? 0 // -180..180 (przód/tył)
+    if (!baselineRef.current) baselineRef.current = { gamma, beta }
     const range = 28
-    const dGamma = clamp(gamma - baseline.current.gamma, -range, range)
-    const dBeta = clamp(beta - baseline.current.beta, -range, range)
-
-    const nx = 0.5 + dGamma / range / 2
-    const ny = 0.5 + dBeta / range / 2
-
-    target.current = { x: clamp(nx, 0, 1), y: clamp(ny, 0, 1) }
+    const dGamma = clamp(gamma - baselineRef.current.gamma, -range, range)
+    const dBeta = clamp(beta - baselineRef.current.beta, -range, range)
+    target.current = {
+      x: clamp(0.5 + dGamma / range / 2, 0, 1),
+      y: clamp(0.5 + dBeta / range / 2, 0, 1),
+    }
+    lastEventAtRef.current = Date.now()
+    setState((s) => (s === 'active' ? s : 'active'))
   }, [])
 
-  // Pętla animacji: płynnie dążymy do celu i emitujemy zdarzenia pointer na canvas.
+  // ----- pętla animacji (lerp + emisja pointer/mouse move na canvas) ---------
   const loop = useCallback(() => {
     const canvas =
       canvasRef.current ??
-      (containerRef.current?.querySelector('canvas') as HTMLCanvasElement | null)
+      (containerRef.current?.querySelector(
+        'canvas',
+      ) as HTMLCanvasElement | null)
     canvasRef.current = canvas
-
     if (canvas) {
-      // lerp dla płynności
       current.current.x += (target.current.x - current.current.x) * 0.08
       current.current.y += (target.current.y - current.current.y) * 0.08
-
       const rect = canvas.getBoundingClientRect()
       const clientX = rect.left + rect.width * current.current.x
       const clientY = rect.top + rect.height * current.current.y
-
       const opts: PointerEventInit & MouseEventInit = {
         clientX,
         clientY,
@@ -111,23 +107,10 @@ export function useTiltControl(
       )
       canvas.dispatchEvent(new MouseEvent('mousemove', opts))
     }
-
     rafRef.current = requestAnimationFrame(loop)
   }, [containerRef])
 
-  const startListening = useCallback(() => {
-    if (listeningRef.current) return
-    listeningRef.current = true
-    // główne zdarzenie + fallback (część Androidów emituje tylko wariant absolutny)
-    window.addEventListener('deviceorientation', handleOrientation, true)
-    window.addEventListener(
-      'deviceorientationabsolute',
-      handleOrientation as EventListener,
-      true,
-    )
-    if (rafRef.current == null) rafRef.current = requestAnimationFrame(loop)
-  }, [handleOrientation, loop])
-
+  // ----- start / stop nasłuchiwania -----------------------------------------
   const stopListening = useCallback(() => {
     window.removeEventListener('deviceorientation', handleOrientation, true)
     window.removeEventListener(
@@ -138,32 +121,99 @@ export function useTiltControl(
     if (rafRef.current != null) cancelAnimationFrame(rafRef.current)
     rafRef.current = null
     listeningRef.current = false
+    if (noEventTimerRef.current != null) {
+      window.clearTimeout(noEventTimerRef.current)
+      noEventTimerRef.current = null
+    }
   }, [handleOrientation])
 
-  /** Wywołaj w reakcji na gest (np. pierwsze dotknięcie) — prosi o zgodę na iOS. */
-  const enableGyro = useCallback(async () => {
-    if (!isTouchDevice()) return
-    const DOE = DeviceOrientationEvent as IOSDeviceOrientationEvent
-    try {
-      if (typeof DOE?.requestPermission === 'function') {
-        const res = await DOE.requestPermission()
-        if (res !== 'granted') return
-      }
-      startListening()
-    } catch {
-      // brak żyroskopu / odmowa — po cichu pomijamy
-    }
-  }, [startListening])
+  const startListening = useCallback(() => {
+    if (listeningRef.current) return
+    listeningRef.current = true
+    // Główne zdarzenie + fallback (część Androidów emituje tylko wariant absolutny).
+    window.addEventListener('deviceorientation', handleOrientation, true)
+    window.addEventListener(
+      'deviceorientationabsolute',
+      handleOrientation as EventListener,
+      true,
+    )
+    if (rafRef.current == null) rafRef.current = requestAnimationFrame(loop)
+    setState((s) => (s === 'active' ? s : 'awaiting-events'))
+    // „Sensor cisza" — po 2.2 s bez żadnego zdarzenia uznajemy, że nie poleci.
+    if (noEventTimerRef.current != null)
+      window.clearTimeout(noEventTimerRef.current)
+    noEventTimerRef.current = window.setTimeout(() => {
+      if (lastEventAtRef.current === 0) setState('no-events')
+    }, 2200)
+  }, [handleOrientation, loop])
 
-  // Android zwykle nie wymaga zgody — startujemy automatycznie.
-  useEffect(() => {
+  // ----- wywołaj z GESTU (np. dotyk) — prosi o zgodę na iOS -----------------
+  const enableGyro = useCallback(async () => {
     if (!isTouch) return
-    const DOE = DeviceOrientationEvent as IOSDeviceOrientationEvent
-    if (typeof DOE?.requestPermission !== 'function') {
+    const DOE = (typeof DeviceOrientationEvent !== 'undefined'
+      ? (DeviceOrientationEvent as IOSOrientation)
+      : null)
+    const DME = (typeof DeviceMotionEvent !== 'undefined'
+      ? (DeviceMotionEvent as IOSMotion)
+      : null)
+    setState('awaiting-permission')
+    try {
+      const requests: Promise<'granted' | 'denied'>[] = []
+      if (DOE && typeof DOE.requestPermission === 'function')
+        requests.push(DOE.requestPermission())
+      // iOS 13+ wymaga ZGODY OSOBNO dla DeviceMotion — bez tego część zdarzeń
+      // (zwłaszcza po wznowieniu Safari) potrafi nie startować.
+      if (DME && typeof DME.requestPermission === 'function')
+        requests.push(DME.requestPermission())
+
+      if (requests.length === 0) {
+        // urządzenie bez API zgody (Android lub stare iOS) — startuj
+        startListening()
+        return
+      }
+      const results = await Promise.all(requests)
+      if (results.every((r) => r === 'granted')) {
+        startListening()
+      } else {
+        setState('permission-denied')
+      }
+    } catch {
+      // typowy powód: wywołanie POZA gestem użytkownika → DOMException
+      setState('permission-denied')
+    }
+  }, [isTouch, startListening])
+
+  // ----- klasyfikacja środowiska + auto-start dla Androida ------------------
+  useEffect(() => {
+    const touch = isTouchDevice()
+    setIsTouch(touch)
+    if (!touch) {
+      setState('unsupported')
+      return
+    }
+    const hasDOE = typeof DeviceOrientationEvent !== 'undefined'
+    if (!hasDOE) {
+      setState('unsupported')
+      return
+    }
+    const needsPermission =
+      typeof (DeviceOrientationEvent as IOSOrientation).requestPermission ===
+      'function'
+    if (needsPermission) {
+      // iOS 13+ — ZAWSZE potrzebuje gestu. Dodatkowo: w niebezpiecznym kontekście
+      // (HTTP poza localhost) Safari w ogóle nie wpuści requestPermission.
+      if (typeof window.isSecureContext === 'boolean' && !window.isSecureContext) {
+        setState('insecure-context')
+      } else {
+        setState('idle')
+      }
+    } else {
+      // Android (lub stare iOS) — startuj automatycznie.
       startListening()
     }
     return () => stopListening()
-  }, [isTouch, startListening, stopListening])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  return { isTouch, gyroActive, enableGyro }
+  return { isTouch, state, enableGyro }
 }

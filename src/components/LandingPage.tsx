@@ -13,13 +13,26 @@ const ROBOT_SCENE =
 
 export default function LandingPage() {
   const stageRef = useRef<HTMLDivElement>(null)
-  const { isTouch, gyroActive, enableGyro } = useTiltControl(stageRef)
+  const { isTouch, state: tiltState, enableGyro } = useTiltControl(stageRef)
+
+  // komunikaty per stan — diagnostyka dla użytkownika (głównie iPhone)
+  const tiltMsg: Record<string, string> = {
+    idle: '↻ Dotknij, aby włączyć przechylanie',
+    'awaiting-permission': '… Pytam o zgodę na sensor',
+    'permission-denied': '✗ Brak zgody — Ustawienia → Safari → Ruch i orientacja',
+    'awaiting-events': '… Czekam na sensor',
+    'no-events': '⚠ Brak danych — odśwież stronę',
+    'insecure-context': '🔒 Otwórz przez HTTPS (tunel: cloudflared / ngrok)',
+  }
+  const showTiltPill =
+    isTouch && tiltState !== 'active' && tiltState !== 'unsupported'
 
   return (
     <div
       className="relative flex h-[100dvh] w-full items-center justify-center bg-[#070A12]"
       onPointerDown={() => {
-        if (isTouch && !gyroActive) void enableGyro()
+        // jakikolwiek pierwszy dotyk na landingu → próba aktywacji (gest = wymóg iOS)
+        if (isTouch && tiltState === 'idle') void enableGyro()
       }}
     >
       {/* Ramka telefonu (max-w-[440px], pionowy format iPhone'a) */}
@@ -98,6 +111,23 @@ export default function LandingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
           >
+            {/* Status żyroskopu (telefon) — widoczny gdy nie aktywny.
+                Kliknięcie próbuje aktywować (potrzebny gest dla iOS). */}
+            {showTiltPill && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (tiltState === 'idle') void enableGyro()
+                }}
+                disabled={
+                  tiltState === 'awaiting-permission' ||
+                  tiltState === 'awaiting-events'
+                }
+                className="mb-3 flex w-full items-center justify-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-[10.5px] font-medium uppercase tracking-[0.18em] text-slate-200/85 backdrop-blur-md transition-colors hover:bg-white/[0.08] disabled:opacity-60"
+              >
+                {tiltMsg[tiltState] ?? ''}
+              </button>
+            )}
             <p className="mb-3 text-center text-[10px] font-medium uppercase tracking-[0.28em] text-slate-400/75">
               Kim jesteś? Wybierz opcję, aby zacząć ocenę
             </p>
