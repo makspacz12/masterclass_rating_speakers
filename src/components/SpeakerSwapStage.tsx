@@ -45,12 +45,15 @@ export function SpeakerSwapStage({
 }: SpeakerSwapStageProps) {
   const lo = Math.min(fromIndex, toIndex)
   const hi = Math.max(fromIndex, toIndex)
+  // SKOK z menu (delta > 1) — niezależnie od pary używamy crossfade + scale.
+  // Nadpisuje per-parę, bo per-para opisuje TYLKO sekwencyjne sąsiedztwa.
+  const isJump = hi - lo > 1
   // Przejście 2↔3 (indeksy 1 i 2) — poziomy „carousel push".
-  const isCarousel = lo === 1 && hi === 2
+  const isCarousel = !isJump && lo === 1 && hi === 2
   // Przejście 3↔4 (indeksy 2 i 3) — „zoom dissolve".
-  const isZoom = lo === 2 && hi === 3
+  const isZoom = !isJump && lo === 2 && hi === 3
   // Przejście 4↔5 (indeksy 3 i 4) — pionowy slide.
-  const isVertical = lo === 3 && hi === 4
+  const isVertical = !isJump && lo === 3 && hi === 4
 
   return (
     <div
@@ -83,7 +86,30 @@ export function SpeakerSwapStage({
 
         {/* obszar treści */}
         <div className="relative flex-1">
-          {isCarousel ? (
+          {isJump ? (
+            <>
+              {/* SKOK Z MENU — crossfade + delikatny scale (uniwersalny) */}
+              <motion.div
+                className="absolute left-5 right-5 top-5"
+                style={{ ...speakerThemeVars(from.id), transformOrigin: 'center', zIndex: 1 }}
+                initial={{ opacity: 1, scale: 1 }}
+                animate={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.35, ease: 'easeIn' }}
+              >
+                <SpeakerCard speaker={from} />
+              </motion.div>
+              <motion.div
+                className="absolute left-5 right-5 top-5"
+                style={{ ...speakerThemeVars(to.id), transformOrigin: 'center', zIndex: 2 }}
+                initial={{ opacity: 0, scale: 1.04 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.45, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                onAnimationComplete={onComplete}
+              >
+                <SpeakerCard speaker={to} />
+              </motion.div>
+            </>
+          ) : isCarousel ? (
             <>
               {/* FROM — wyjeżdża w bok (przeciwnie do wejścia TO) */}
               <motion.div

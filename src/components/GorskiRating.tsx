@@ -7,6 +7,7 @@ import type { Speaker } from '@/data/speakers'
 import type { Answers, Audience } from '@/data/evaluation'
 import { AUDIENCES } from '@/data/evaluation'
 import { cn } from '@/lib/utils'
+import { OrbitMap } from '@/components/menus/OrbitMap'
 
 /**
  * WIDOK PRELEGENTA #3 — Krzysztof M. Górski (WYJĄTEK, pełna izolacja).
@@ -30,6 +31,9 @@ interface GorskiRatingProps {
   onPrev: () => void
   onNext: () => void
   onHome: () => void
+  speakers: Speaker[]
+  currentId: string
+  onJumpTo: (id: string) => void
 }
 
 const EASE = [0.22, 1, 0.36, 1] as const
@@ -47,8 +51,12 @@ export default function GorskiRating({
   onPrev,
   onNext,
   onHome,
+  speakers,
+  currentId,
+  onJumpTo,
 }: GorskiRatingProps) {
   const [bioOpen, setBioOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const pad = (n: number) => String(n).padStart(2, '0')
 
   return (
@@ -73,19 +81,24 @@ export default function GorskiRating({
         <OrbitNav onClick={onPrev} disabled={isFirst} ariaLabel="Poprzedni prelegent">
           <ChevronLeft className="h-5 w-5" />
         </OrbitNav>
-        <button
-          type="button"
-          onClick={onHome}
-          className="flex flex-col items-center rounded-xl px-3 py-1 transition-colors hover:bg-white/[0.04]"
-        >
-          <span className="flex items-center gap-1.5 text-[12px] font-bold tracking-[0.04em] text-[#C5CEE6]">
+        <div className="flex flex-col items-center">
+          <button
+            type="button"
+            onClick={onHome}
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1 text-[12px] font-bold tracking-[0.04em] text-[#C5CEE6] transition-colors hover:bg-white/[0.04]"
+          >
             <Home className="h-3.5 w-3.5" style={{ color: VIOLET }} />
             Strona główna
-          </span>
-          <span className="mt-0.5 text-[10px] tracking-[0.3em] text-[#7E89AE]">
+          </button>
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            className="mt-0.5 inline-flex items-center gap-1 text-[10px] tracking-[0.3em] text-[#8E8CFF] transition-colors hover:underline"
+          >
             OBJ {pad(index + 1)} / {pad(total)}
-          </span>
-        </button>
+            <span aria-hidden>▾</span>
+          </button>
+        </div>
         <OrbitNav onClick={onNext} disabled={isLast} ariaLabel="Następny prelegent">
           <ChevronRight className="h-5 w-5" />
         </OrbitNav>
@@ -235,6 +248,17 @@ export default function GorskiRating({
           <ArrowRight className="h-5 w-5 transition-transform duration-300 ease-out group-hover:translate-x-1" />
         </button>
       </div>
+
+      <OrbitMap
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        speakers={speakers}
+        currentId={currentId}
+        onJumpTo={(id) => {
+          setMenuOpen(false)
+          onJumpTo(id)
+        }}
+      />
     </div>
   )
 }

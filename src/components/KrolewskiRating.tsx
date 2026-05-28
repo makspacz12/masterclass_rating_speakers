@@ -7,6 +7,7 @@ import type { Speaker } from '@/data/speakers'
 import type { Answers, Audience } from '@/data/evaluation'
 import { AUDIENCES } from '@/data/evaluation'
 import { cn } from '@/lib/utils'
+import { GoldDeck } from '@/components/menus/GoldDeck'
 
 /**
  * WIDOK PRELEGENTA #5 — Jarosław Królewski (WYJĄTEK, pełna izolacja).
@@ -31,6 +32,9 @@ interface KrolewskiRatingProps {
   onPrev: () => void
   onNext: () => void
   onHome: () => void
+  speakers: Speaker[]
+  currentId: string
+  onJumpTo: (id: string) => void
 }
 
 const EASE = [0.22, 1, 0.36, 1] as const
@@ -47,8 +51,12 @@ export default function KrolewskiRating({
   onPrev,
   onNext,
   onHome,
+  speakers,
+  currentId,
+  onJumpTo,
 }: KrolewskiRatingProps) {
   const [bioOpen, setBioOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   return (
     <div className="relative min-h-[100dvh] overflow-hidden text-platinum-light">
@@ -67,19 +75,24 @@ export default function KrolewskiRating({
           <ChevronLeft className="h-5 w-5" />
         </GhostNav>
 
-        <button
-          type="button"
-          onClick={onHome}
-          className="flex flex-col items-center rounded-xl px-3 py-1 transition-colors hover:bg-white/[0.04]"
-        >
-          <span className="flex items-center gap-1.5 text-[12px] font-semibold text-platinum-light">
+        <div className="flex flex-col items-center">
+          <button
+            type="button"
+            onClick={onHome}
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1 text-[12px] font-semibold text-platinum-light transition-colors hover:bg-white/[0.04]"
+          >
             <Home className="h-3.5 w-3.5 text-gold-light" />
             Strona główna
-          </span>
-          <span className="mt-0.5 text-[11px] tabular-nums tracking-[0.18em] text-gold/70">
-            {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
-          </span>
-        </button>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            className="mt-0.5 inline-flex items-center gap-1 text-[11px] tabular-nums tracking-[0.18em] text-gold-light transition-colors hover:underline"
+          >
+            № {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+            <span aria-hidden>▾</span>
+          </button>
+        </div>
 
         <GhostNav onClick={onNext} disabled={isLast} ariaLabel="Następny prelegent">
           <ChevronRight className="h-5 w-5" />
@@ -258,6 +271,17 @@ export default function KrolewskiRating({
           <ArrowRight className="h-5 w-5 transition-transform duration-300 ease-out group-hover:translate-x-1" />
         </button>
       </div>
+
+      <GoldDeck
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        speakers={speakers}
+        currentId={currentId}
+        onJumpTo={(id) => {
+          setMenuOpen(false)
+          onJumpTo(id)
+        }}
+      />
     </div>
   )
 }

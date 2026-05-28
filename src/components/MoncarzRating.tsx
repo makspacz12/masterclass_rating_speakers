@@ -7,6 +7,7 @@ import type { Speaker } from '@/data/speakers'
 import type { Answers, Audience } from '@/data/evaluation'
 import { AUDIENCES } from '@/data/evaluation'
 import { cn } from '@/lib/utils'
+import { BlueprintRoster } from '@/components/menus/BlueprintRoster'
 
 /**
  * WIDOK PRELEGENTA #1 — Piotr Moncarz (WYJĄTEK, pełna izolacja).
@@ -30,6 +31,9 @@ interface MoncarzRatingProps {
   onPrev: () => void
   onNext: () => void
   onHome: () => void
+  speakers: Speaker[]
+  currentId: string
+  onJumpTo: (id: string) => void
 }
 
 const EASE = [0.22, 1, 0.36, 1] as const
@@ -47,8 +51,12 @@ export default function MoncarzRating({
   onPrev,
   onNext,
   onHome,
+  speakers,
+  currentId,
+  onJumpTo,
 }: MoncarzRatingProps) {
   const [bioOpen, setBioOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const pad = (n: number) => String(n).padStart(2, '0')
 
   return (
@@ -68,19 +76,24 @@ export default function MoncarzRating({
         <TechNav onClick={onPrev} disabled={isFirst} ariaLabel="Poprzedni prelegent">
           <ChevronLeft className="h-5 w-5" />
         </TechNav>
-        <button
-          type="button"
-          onClick={onHome}
-          className="flex flex-col items-center px-3 py-1 transition-colors hover:bg-[#16202B]/[0.04]"
-        >
-          <span className="flex items-center gap-1.5 font-grotesk text-[12px] font-bold text-[#16202B]">
+        <div className="flex flex-col items-center">
+          <button
+            type="button"
+            onClick={onHome}
+            className="flex items-center gap-1.5 px-3 py-1 font-grotesk text-[12px] font-bold text-[#16202B] transition-colors hover:bg-[#16202B]/[0.04]"
+          >
             <Home className="h-3.5 w-3.5" style={{ color: TEAL }} />
             Strona główna
-          </span>
-          <span className="mt-0.5 font-spacemono text-[10px] tracking-[0.2em] text-[#5B6B7A]">
+          </button>
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            className="mt-0.5 inline-flex items-center gap-1 font-spacemono text-[10px] tracking-[0.2em] text-[#0F766E] transition-colors hover:underline"
+          >
             PROFIL {pad(index + 1)}/{pad(total)}
-          </span>
-        </button>
+            <span aria-hidden>▾</span>
+          </button>
+        </div>
         <TechNav onClick={onNext} disabled={isLast} ariaLabel="Następny prelegent">
           <ChevronRight className="h-5 w-5" />
         </TechNav>
@@ -228,6 +241,17 @@ export default function MoncarzRating({
           <ArrowRight className="relative z-10 h-5 w-5 transition-all duration-300 group-hover:translate-x-1 group-hover:text-white" />
         </button>
       </div>
+
+      <BlueprintRoster
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        speakers={speakers}
+        currentId={currentId}
+        onJumpTo={(id) => {
+          setMenuOpen(false)
+          onJumpTo(id)
+        }}
+      />
     </div>
   )
 }

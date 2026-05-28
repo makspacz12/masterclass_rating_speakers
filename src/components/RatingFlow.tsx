@@ -10,6 +10,7 @@ import GorskiRating from '@/components/GorskiRating'
 import MoncarzRating from '@/components/MoncarzRating'
 import CzubkowskaRating from '@/components/CzubkowskaRating'
 import { SpeakerSwapStage } from '@/components/SpeakerSwapStage'
+import { Roster } from '@/components/menus/Roster'
 import { speakerThemeVars } from '@/lib/speakerTheme'
 import { useQuestions } from '@/hooks/useQuestions'
 import { cn } from '@/lib/utils'
@@ -50,6 +51,19 @@ export default function RatingFlow() {
     window.scrollTo({ top: 0, behavior: 'auto' })
     setTransition({ from: index, to: next, dir })
   }
+
+  // Skok bezpośredni z menu „spis gości" (deep-jump). Dir liczony z delta.
+  const goTo = (targetIndex: number) => {
+    if (transition) return
+    const next = clamp(targetIndex, 0, total - 1)
+    if (next === index) return
+    window.scrollTo({ top: 0, behavior: 'auto' })
+    setTransition({ from: index, to: next, dir: next > index ? 1 : -1 })
+  }
+  const handleJumpTo = (id: string) => goTo(speakers.findIndex((s) => s.id === id))
+
+  // Menu „spis gości" w ścieżce wspólnej (Bralczyk i ew. inni bez bespoke widoku).
+  const [rosterOpen, setRosterOpen] = useState(false)
 
   // Powrót do landingu — RatingFlow odmontuje się, więc po ponownym wejściu
   // pytania ładują się od nowa (stan resetuje się).
@@ -103,6 +117,9 @@ export default function RatingFlow() {
             onPrev={() => go(-1)}
             onNext={() => go(1)}
             onHome={goHome}
+            speakers={speakers}
+            currentId={speaker.id}
+            onJumpTo={handleJumpTo}
           />
         ) : isGorski ? (
           <GorskiRating
@@ -117,6 +134,9 @@ export default function RatingFlow() {
             onPrev={() => go(-1)}
             onNext={() => go(1)}
             onHome={goHome}
+            speakers={speakers}
+            currentId={speaker.id}
+            onJumpTo={handleJumpTo}
           />
         ) : isMoncarz ? (
           <MoncarzRating
@@ -131,6 +151,9 @@ export default function RatingFlow() {
             onPrev={() => go(-1)}
             onNext={() => go(1)}
             onHome={goHome}
+            speakers={speakers}
+            currentId={speaker.id}
+            onJumpTo={handleJumpTo}
           />
         ) : isCzubkowska ? (
           <CzubkowskaRating
@@ -145,6 +168,9 @@ export default function RatingFlow() {
             onPrev={() => go(-1)}
             onNext={() => go(1)}
             onHome={goHome}
+            speakers={speakers}
+            currentId={speaker.id}
+            onJumpTo={handleJumpTo}
           />
         ) : (
           <>
@@ -161,20 +187,25 @@ export default function RatingFlow() {
               <span className="hidden xs:inline">Poprzedni</span>
             </NavBaton>
 
-            {/* środek: powrót do strony głównej + licznik */}
-            <button
-              type="button"
-              onClick={goHome}
-              className="flex flex-col items-center rounded-xl px-3 py-1 transition-colors hover:bg-[#F1E7D8]"
-            >
-              <span className="flex items-center gap-1.5 text-[12px] font-semibold text-[#1C1B1F]">
+            {/* środek: powrót do strony głównej + licznik (jako trigger menu) */}
+            <div className="flex flex-col items-center">
+              <button
+                type="button"
+                onClick={goHome}
+                className="flex items-center gap-1.5 rounded-lg px-3 py-1 text-[12px] font-semibold text-[#1C1B1F] transition-colors hover:bg-[#F1E7D8]"
+              >
                 <Home className="h-3.5 w-3.5 text-[var(--acc-strong)]" />
                 Strona główna
-              </span>
-              <span className="mt-0.5 text-[11px] tabular-nums text-[#A99A80]">
+              </button>
+              <button
+                type="button"
+                onClick={() => setRosterOpen(true)}
+                className="mt-0.5 inline-flex items-center gap-1 text-[11px] tabular-nums text-[var(--acc-strong)] transition-colors hover:underline"
+              >
                 Prelegent {index + 1} / {total}
-              </span>
-            </button>
+                <span aria-hidden>▾</span>
+              </button>
+            </div>
 
             {/* baton: następny prelegent */}
             <NavBaton
@@ -213,6 +244,16 @@ export default function RatingFlow() {
             </button>
           </div>
         )}
+        <Roster
+          open={rosterOpen}
+          onClose={() => setRosterOpen(false)}
+          speakers={speakers}
+          currentId={speaker.id}
+          onJumpTo={(id) => {
+            setRosterOpen(false)
+            handleJumpTo(id)
+          }}
+        />
           </>
         )}
       </div>

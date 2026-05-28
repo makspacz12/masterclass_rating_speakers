@@ -8,6 +8,7 @@ import type { Speaker } from '@/data/speakers'
 import type { Answers, Audience } from '@/data/evaluation'
 import { AUDIENCES } from '@/data/evaluation'
 import { cn } from '@/lib/utils'
+import { IndexPage } from '@/components/menus/IndexPage'
 
 /**
  * WIDOK PRELEGENTA #2 — Sylwia Czubkowska (WYJĄTEK, pełna izolacja).
@@ -31,6 +32,9 @@ interface CzubkowskaRatingProps {
   onPrev: () => void
   onNext: () => void
   onHome: () => void
+  speakers: Speaker[]
+  currentId: string
+  onJumpTo: (id: string) => void
 }
 
 const EASE = [0.22, 1, 0.36, 1] as const
@@ -53,8 +57,12 @@ export default function CzubkowskaRating({
   onPrev,
   onNext,
   onHome,
+  speakers,
+  currentId,
+  onJumpTo,
 }: CzubkowskaRatingProps) {
   const [bioOpen, setBioOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const pad = (n: number) => String(n).padStart(2, '0')
 
   return (
@@ -64,19 +72,24 @@ export default function CzubkowskaRating({
         <PressNav onClick={onPrev} disabled={isFirst} ariaLabel="Poprzedni">
           <ChevronLeft className="h-5 w-5" />
         </PressNav>
-        <button
-          type="button"
-          onClick={onHome}
-          className="flex flex-col items-center px-3 py-1"
-        >
-          <span className="flex items-center gap-1.5 font-playfair text-[14px] font-bold italic text-[#1A1A1A]">
+        <div className="flex flex-col items-center">
+          <button
+            type="button"
+            onClick={onHome}
+            className="flex items-center gap-1.5 px-3 py-1 font-playfair text-[14px] font-bold italic text-[#1A1A1A]"
+          >
             <Home className="h-3.5 w-3.5" style={{ color: MAGENTA }} />
             Strona główna
-          </span>
-          <span className="mt-0.5 font-grotesk text-[9.5px] font-bold uppercase tracking-[0.32em] text-[#1A1A1A]/55">
-            № {pad(index + 1)} / {pad(total)}
-          </span>
-        </button>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            className="mt-0.5 inline-flex items-center gap-1 font-grotesk text-[9.5px] font-bold uppercase tracking-[0.32em] text-[#A8336B] transition-colors hover:underline"
+          >
+            Spis № {pad(index + 1)} / {pad(total)}
+            <span aria-hidden>▾</span>
+          </button>
+        </div>
         <PressNav onClick={onNext} disabled={isLast} ariaLabel="Następny">
           <ChevronRight className="h-5 w-5" />
         </PressNav>
@@ -326,6 +339,17 @@ export default function CzubkowskaRating({
         </AnimatePresence>,
         document.body,
       )}
+
+      <IndexPage
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        speakers={speakers}
+        currentId={currentId}
+        onJumpTo={(id) => {
+          setMenuOpen(false)
+          onJumpTo(id)
+        }}
+      />
     </div>
   )
 }
